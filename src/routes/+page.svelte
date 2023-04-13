@@ -29,18 +29,49 @@
       // The port of the node, defaults to 9735
       port,
       // connect directly to a node without TLS
-      wsProtocol: 'ws:'
+      wsProtocol: 'ws:',
+      logger: {
+        info: console.log,
+        error: console.error,
+        warn: console.warn
+      }
     })
 
     // initiate the connection to the remote node
     await ln.connect()
   }
+
+  async function request() {
+    let parsedParams: unknown | undefined
+
+    try {
+      parsedParams = params ? JSON.parse(params) : undefined
+
+      const requestResult = await ln.commando({
+        method,
+        params: parsedParams,
+        rune
+      })
+
+      result = JSON.stringify(requestResult, null, 2)
+    } catch (error) {
+      const { message } = error as { message: string }
+      alert(message)
+      return
+    }
+  }
 </script>
 
-<main class="w-screen h-screen flex items-center justify-center p-6">
+<main class="w-screen h-screen flex items-center justify-center p-6 relative">
+  {#if ln}
+    <div class="absolute top-1 right-1 px-2 py-1 border-green-600 rounded border text-sm">
+      Browser Id: {`${ln.publicKey.slice(0, 8)}...${ln.publicKey.slice(-8)}`}
+    </div>
+  {/if}
+
   <div class="w-1/2">
-    <h1 class="font-bold text-3xl mb-4 text-start w-full">Create CoreLN App</h1>
-    <div class="w-full mt-4 text-sm p-4 border rounded border-purple-300">
+    <h1 class="font-bold text-3xl mb-4 w-full text-center">Create CoreLN App</h1>
+    <div class="w-full mt-4 text-sm p-4 border-2 rounded border-purple-300">
       <label class="text-neutral-600 font-medium mb-1 block" for="address">Address</label>
       <textarea
         id="address"
@@ -73,7 +104,7 @@
       </div>
     </div>
 
-    <div class="w-full mt-8 text-sm p-4 border rounded border-yellow-300">
+    <div class="w-full mt-8 text-sm p-4 border-2 rounded border-yellow-300">
       <label class="text-neutral-600 font-medium mb-1 block" for="rune">Rune</label>
       <textarea
         id="rune"
@@ -84,7 +115,7 @@
       />
     </div>
 
-    <div class="p-4 border rounded border-green-300 mt-8">
+    <div class="p-4 border-2 rounded border-orange-300 mt-8">
       <div class="w-full text-sm">
         <label class="text-neutral-600 font-medium mb-1 block" for="method">Method</label>
         <input
@@ -108,15 +139,15 @@
       </div>
 
       <button
-        on:click={connect}
-        disabled={!rune || !method}
+        on:click={request}
+        disabled={!connectionStatus$ || !rune || !method}
         class="mt-2 border border-purple-500 rounded py-1 px-4 disabled:opacity-20 hover:shadow-md active:shadow-none"
         >Request</button
       >
     </div>
   </div>
 
-  <div class="w-1/2 p-4 border rounded border-pink-400 ml-4">
+  <div class="w-1/2 p-4 border-2 rounded border-green-300 ml-4">
     <div class="w-full text-sm">
       <label class="text-neutral-600 font-medium mb-1 block" for="params">Result</label>
       <textarea
