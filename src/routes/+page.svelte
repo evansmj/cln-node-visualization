@@ -69,7 +69,7 @@
     </div>
   {/if}
 
-  <div class="w-1/2">
+  <div class="w-1/2 max-w-lg">
     <h1 class="font-bold text-3xl mb-4 w-full text-center">Create CoreLN App</h1>
     <div class="w-full mt-4 text-sm p-4 border-2 rounded border-purple-300">
       <label class="text-neutral-600 font-medium mb-1 block" for="address">Address</label>
@@ -147,7 +147,7 @@
     </div>
   </div>
 
-  <div class="w-1/2 p-4 border-2 rounded border-green-300 ml-4">
+  <div class="w-1/2 max-w-xl p-4 border-2 rounded border-green-300 ml-4">
     <div class="w-full text-sm">
       <label class="text-neutral-600 font-medium mb-1 block" for="params">Result</label>
       <textarea
