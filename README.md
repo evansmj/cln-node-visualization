@@ -1,18 +1,18 @@
 # Create CoreLN App
 
-This is a simple boilerplate repo that can be a good starting point for building a web app that connects directly to CoreLN nodes via the encrypted Lightning Network messaging protocol. It uses [Lnmessage]() to establish a websocket connection via a direct connection if a [WS port is exposed]() on the node. Alternatively it can be modified to connect via a trustless WS -> TCP proxy for production deploys.
+This is a simple boilerplate repo that can be a good starting point for building a web app that connects directly to CoreLN nodes via the encrypted Lightning Network messaging protocol. It uses [Lnmessage](https://github.com/aaronbarnardsound/lnmessage) to establish a websocket connection via a direct connection if a [WS port is exposed](https://docs.corelightning.org/reference/lightningd-config#experimental-options) on the node. Alternatively it can be modified to connect via a trustless WS -> TCP proxy for production deploys.
 
-The frontend tech stack uses [Sveltekit](), a web framework built around [Svelte]() that can be configured as a [Single Page]() or [Server Side Rendered]() app or anywhere in between.
+The frontend tech stack uses [Sveltekit](https://kit.svelte.dev), a web framework built around [Svelte](https://svelte.dev) that can be configured as a [Single Page](https://kit.svelte.dev/docs/glossary#spa) or [Server Side Rendered](https://kit.svelte.dev/docs/glossary#ssr) app or anywhere in between.
 
 TypeScript is configured to enforce types.
 
-I have added a [service worker]() with just the basic Svelte recommended offline caching setup as well as a manifest file to make it a [Progressive Web App]().
+I have added a [service worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API) with just the basic Svelte recommended offline caching setup as well as a manifest file to make it a [Progressive Web App](https://web.dev/progressive-web-apps/).
 
-For styling [Tailwind CSS]() has been added which makes styling and theming pretty easy.
+For styling [Tailwind CSS](https://tailwindcss.com/) has been added which makes styling and theming pretty easy.
 
-[Playwright]() and [Vite test]() have been setup for testing.
+[Playwright](https://playwright.dev/) and [Vite test](https://vitest.dev/) have been setup for testing.
 
-Linting and code formatting are setup with [EsLint]() and [Prettier]() and can be modified as needed.
+Linting and code formatting are setup with [ESLint](https://eslint.org/) and [Prettier](https://prettier.io/) and can be modified as needed.
 
 ## Get started
 
