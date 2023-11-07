@@ -1,6 +1,8 @@
 <script lang="ts">
   import Lnmessage from 'lnmessage'
   import { parseNodeAddress } from './utils.js'
+  import { onMount } from 'svelte';
+  import Graph from "graphology";
 
   let ln: Lnmessage
   let connectionStatus$: Lnmessage['connectionStatus$']
@@ -14,6 +16,49 @@
   let method: string
   let params: string
   let result: string
+
+  let graphData: string
+
+  let Sigma: any; //todo, they're adding types in the next release of Sigma.js.
+
+  interface Channel {
+  source: string;
+  destination: string;
+  short_channel_id: string;
+  direction: number;
+  public: boolean;
+  amount_msat: number;
+  message_flags: number;
+  channel_flags: number;
+  active: boolean;
+  last_update: number;
+  base_fee_millisatoshi: number;
+  fee_per_millionth: number;
+  delay: number;
+  htlc_minimum_msat: number;
+  htlc_maximum_msat: number;
+  features: string;
+}
+
+interface ChannelCollection {
+  channels: Channel[];
+}
+
+  onMount(async () => {
+    const module = await import('sigma');
+    Sigma = module.default;
+
+    //create my graph here and render in <div id="sigma-container">
+
+      // const container = document.getElementById("sigma-container") as HTMLElement;
+      // const graph = new Graph();
+
+      // graph.addNode(graphData, { x: 0, y: 30, size: 5, label: "John", color: "blue" });
+      // graph.addNode("Mary", { x: 10, y: 0, size: 3, label: "Mary", color: "red" });
+      // graph.addEdge("John", "Mary");
+
+      // const renderer = new Sigma(graph, container);
+  });
 
   async function connect() {
     const { publicKey, ip, port } = parseNodeAddress(address)
@@ -54,6 +99,51 @@
       })
 
       result = JSON.stringify(requestResult, null, 2)
+      graphData = "yo i loaded stuff"
+
+      const container = document.getElementById("sigma-container") as HTMLElement;
+      const graph = new Graph({multi: true});
+
+      let channelCollection: ChannelCollection = JSON.parse(result);
+      let source = channelCollection.channels[0].source;
+      let destination = channelCollection.channels[0].destination;
+      //alert(`source = ${source} destination = ${destination}`);
+
+      // Initialize an empty set
+      let nodes = new Set<string>();
+
+      // Add source and destination to the set
+      for (let channel of channelCollection.channels) {
+        nodes.add(channel.source);
+        nodes.add(channel.destination);
+      }
+
+      //loop through the set, and add nodes to the graph.  have a counter and add 5 to the x position.
+      let nodeArray = Array.from(nodes);
+      for (let i = 0; i < nodeArray.length; i++) {
+        let n = nodeArray[i];
+        let nodeName = n.substring(0, 7);
+        let xFactor = (i+1);
+        graph.addNode(nodeName, { x: xFactor, y: 5, size: 15, label: nodeName, color: "blue" });
+      }
+
+      //loop through the channels list, and make an arrow edge for each
+      let channelsArray = channelCollection.channels;
+      for (let i = 0; i < channelsArray.length; i++) {
+        let source = channelsArray[i].source.substring(0, 7);
+        let destination = channelsArray[i].destination.substring(0, 7);
+        graph.addEdge(source, destination, {
+          type: 'arrow',
+          label: '',
+          color: '#ff0000'
+        });
+      }
+
+      const renderer = new Sigma(graph, container, {
+        labelThreshold: 0,
+        minArrowSize: 50
+      });
+
     } catch (error) {
       const { message } = error as { message: string }
       alert(message)
@@ -62,7 +152,7 @@
   }
 </script>
 
-<main class="w-screen h-screen flex items-center justify-center p-6 relative">
+<main class="w-screen flex items-center justify-center p-6 relative">
   {#if ln}
     <div class="absolute top-1 right-1 px-2 py-1 border-green-600 rounded border text-sm">
       Browser Id: {`${ln.publicKey.slice(0, 8)}...${ln.publicKey.slice(-8)}`}
@@ -160,3 +250,12 @@
     </div>
   </div>
 </main>
+
+<div class="w-full flex justify-center mt-auto">
+  <div class="p-4 border-2 rounded border-green-300">
+    <div id="sigma-container" style="width: 800px; height:800px">
+      <p>Hello world look at this graph</p>
+      <img src="https://i.imgur.com/oecHiLK.jpeg" alt="Look at this graph" height="200" width="200"/>
+    </div>
+  </div>
+</div>

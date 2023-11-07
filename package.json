@@ -36,6 +36,8 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"lnmessage": "^0.2.1"
+		"graphology": "^0.25.4",
+		"lnmessage": "^0.2.1",
+		"sigma": "^3.0.0-alpha3"
 	}
 }
