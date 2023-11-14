@@ -1,15 +1,7 @@
 <script lang="ts">
-  import Lnmessage from 'lnmessage'
-  import { parseNodeAddress } from './utils.js'
-  import { onMount } from 'svelte';
-  import Graph from "graphology";
-
-  let ln: Lnmessage
-  let connectionStatus$: Lnmessage['connectionStatus$']
-
-  $: if (ln) {
-    connectionStatus$ = ln.connectionStatus$
-  }
+  import { onMount } from 'svelte'
+  import * as d3 from 'd3'
+  import { pageViewModel } from './PageViewModel'
 
   let address: string
   let rune: string
@@ -17,150 +9,93 @@
   let params: string
   let result: string
 
-  let graphData: string
+  let { connectionStatus } = pageViewModel
 
-  let Sigma: any; //todo, they're adding types in the next release of Sigma.js.
+  let svg: any
 
-  interface Channel {
-  source: string;
-  destination: string;
-  short_channel_id: string;
-  direction: number;
-  public: boolean;
-  amount_msat: number;
-  message_flags: number;
-  channel_flags: number;
-  active: boolean;
-  last_update: number;
-  base_fee_millisatoshi: number;
-  fee_per_millionth: number;
-  delay: number;
-  htlc_minimum_msat: number;
-  htlc_maximum_msat: number;
-  features: string;
-}
-
-interface ChannelCollection {
-  channels: Channel[];
-}
+  var margin = { top: 50, right: 50, bottom: 50, left: 50 },
+      width = 400 - margin.left - margin.right,
+      height = 400 - margin.top - margin.bottom
 
   onMount(async () => {
-    const module = await import('sigma');
-    Sigma = module.default;
+    //d3.selectAll('.chart').append('p').text('Hello World')
 
-    //create my graph here and render in <div id="sigma-container">
 
-      // const container = document.getElementById("sigma-container") as HTMLElement;
-      // const graph = new Graph();
 
-      // graph.addNode(graphData, { x: 0, y: 30, size: 5, label: "John", color: "blue" });
-      // graph.addNode("Mary", { x: 10, y: 0, size: 3, label: "Mary", color: "red" });
-      // graph.addEdge("John", "Mary");
+    // append the svg object to the body of the page
+    svg = d3
+      .selectAll('div.chart')
+      .append('svg')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+  })
 
-      // const renderer = new Sigma(graph, container);
-  });
+  function updateGraph(data: GraphData) {
+    var link = svg.selectAll('line').data(data.links).enter().append('line').style('stroke', '#aaa')
 
-  async function connect() {
-    const { publicKey, ip, port } = parseNodeAddress(address)
+    var node = svg
+      .selectAll('circle')
+      .data(data.nodes)
+      .enter()
+      .append('circle')
+      .attr('r', 20)
+      .style('fill', '#69b3a2')
 
-    // https://github.com/aaronbarnardsound/lnmessage#initialisation
-    ln = new Lnmessage({
-      // The public key of the node you would like to connect to
-      remoteNodePublicKey: publicKey,
-      // WebSocket proxy endpoint to connect through if running in prod
-      // wsProxy: 'wss://<WEBSOCKET_PROXY>',
-      // The IP address of the node
-      ip,
-      // The port of the node, defaults to 9735
-      port,
-      // connect directly to a node without TLS
-      wsProtocol: 'ws:',
-      logger: {
-        info: console.log,
-        error: console.error,
-        warn: console.warn
-      }
-    })
+    var simulation = d3
+      .forceSimulation(data.nodes)
+      .force(
+        'link',
+        d3
+          .forceLink()
+          .id(function (d) {
+            return d.id
+          })
+          .links(data.links)
+      )
+      .force('charge', d3.forceManyBody().strength(-400))
+      .force('center', d3.forceCenter(width / 2, height / 2))
+      .on('end', ticked)
 
-    // initiate the connection to the remote node
-    await ln.connect()
+    function ticked() {
+      link
+        .attr('x1', function (d) {
+          return d.source.x
+        })
+        .attr('y1', function (d) {
+          return d.source.y
+        })
+        .attr('x2', function (d) {
+          return d.target.x
+        })
+        .attr('y2', function (d) {
+          return d.target.y
+        })
+      node
+        .attr('cx', function (d) {
+          return d.x + 6
+        })
+        .attr('cy', function (d) {
+          return d.y - 6
+        })
+    }
   }
 
-  async function request() {
-    let parsedParams: unknown | undefined
-
-    try {
-      parsedParams = params ? JSON.parse(params) : undefined
-
-      const requestResult = await ln.commando({
-        method,
-        params: parsedParams,
-        rune
-      })
-
-      result = JSON.stringify(requestResult, null, 2)
-      graphData = "yo i loaded stuff"
-
-      const container = document.getElementById("sigma-container") as HTMLElement;
-      const graph = new Graph({multi: true});
-
-      let channelCollection: ChannelCollection = JSON.parse(result);
-      let source = channelCollection.channels[0].source;
-      let destination = channelCollection.channels[0].destination;
-      //alert(`source = ${source} destination = ${destination}`);
-
-      // Initialize an empty set
-      let nodes = new Set<string>();
-
-      // Add source and destination to the set
-      for (let channel of channelCollection.channels) {
-        nodes.add(channel.source);
-        nodes.add(channel.destination);
-      }
-
-      //loop through the set, and add nodes to the graph.  have a counter and add 5 to the x position.
-      let nodeArray = Array.from(nodes);
-      for (let i = 0; i < nodeArray.length; i++) {
-        let n = nodeArray[i];
-        let nodeName = n.substring(0, 7);
-        let xFactor = (i+1);
-        graph.addNode(nodeName, { x: xFactor, y: 5, size: 15, label: nodeName, color: "blue" });
-      }
-
-      //loop through the channels list, and make an arrow edge for each
-      let channelsArray = channelCollection.channels;
-      for (let i = 0; i < channelsArray.length; i++) {
-        let source = channelsArray[i].source.substring(0, 7);
-        let destination = channelsArray[i].destination.substring(0, 7);
-        graph.addEdge(source, destination, {
-          type: 'arrow',
-          label: '',
-          color: '#ff0000'
-        });
-      }
-
-      const renderer = new Sigma(graph, container, {
-        labelThreshold: 0,
-        minArrowSize: 50
-      });
-
-    } catch (error) {
-      const { message } = error as { message: string }
-      alert(message)
-      return
-    }
+  function executeConnect() {
+    pageViewModel.connect('someAddress', 'someRune')
   }
 </script>
 
 <main class="w-screen flex items-center justify-center p-6 relative">
-  {#if ln}
+  <!--{#if ln}
     <div class="absolute top-1 right-1 px-2 py-1 border-green-600 rounded border text-sm">
       Browser Id: {`${ln.publicKey.slice(0, 8)}...${ln.publicKey.slice(-8)}`}
     </div>
-  {/if}
+  {/if}-->
 
   <div class="w-1/2 max-w-lg">
-    <h1 class="font-bold text-3xl mb-4 w-full text-center">Create CoreLN App</h1>
+    <h1 class="font-bold text-3xl mb-4 w-full text-center">CLN Node Visualizer</h1>
     <div class="w-full mt-4 text-sm p-4 border-2 rounded border-purple-300">
       <label class="text-neutral-600 font-medium mb-1 block" for="address">Address</label>
       <textarea
@@ -171,30 +106,6 @@ interface ChannelCollection {
         placeholder="033f4bbfcd67bd0fc858499929a3255d063999ee23f4c5e12b8b1089e132b3e408@localhost:7272"
       />
 
-      <div class="flex items-center justify-between w-full">
-        <button
-          on:click={connect}
-          disabled={!address}
-          class="mt-2 border border-purple-500 rounded py-1 px-4 disabled:opacity-20 hover:shadow-md active:shadow-none"
-          >Connect</button
-        >
-
-        {#if connectionStatus$}
-          <div class="flex items-center">
-            <div class="text-sm">{$connectionStatus$}</div>
-            <div
-              class:bg-green-500={$connectionStatus$ === 'connected'}
-              class:bg-yellow-500={$connectionStatus$ === 'connecting' ||
-                $connectionStatus$ === 'waiting_reconnect'}
-              class:bg-red-500={$connectionStatus$ === 'disconnected'}
-              class="w-3 h-3 rounded-full ml-1 transition-colors"
-            />
-          </div>
-        {/if}
-      </div>
-    </div>
-
-    <div class="w-full mt-8 text-sm p-4 border-2 rounded border-yellow-300">
       <label class="text-neutral-600 font-medium mb-1 block" for="rune">Rune</label>
       <textarea
         id="rune"
@@ -203,59 +114,38 @@ interface ChannelCollection {
         bind:value={rune}
         placeholder="O2osJxV-6lGUgAf-0NllduniYbq1Zkn-45trtbx4qAE9MA=="
       />
-    </div>
 
-    <div class="p-4 border-2 rounded border-orange-300 mt-8">
-      <div class="w-full text-sm">
-        <label class="text-neutral-600 font-medium mb-1 block" for="method">Method</label>
-        <input
-          id="method"
-          class="border w-full p-2 rounded"
-          type="text"
-          bind:value={method}
-          placeholder="getinfo"
-        />
+      <div class="flex items-center justify-between w-full">
+        <button
+          on:click={executeConnect}
+          disabled={!address}
+          class="mt-2 border border-purple-500 rounded py-1 px-4 disabled:opacity-20 hover:shadow-md active:shadow-none"
+          >Connect</button
+        >
+
+        {#if $connectionStatus}
+          <div class="flex items-center">
+            <div class="text-sm">{$connectionStatus}</div>
+            <div
+              class:bg-green-500={$connectionStatus === 'connected'}
+              class:bg-yellow-500={$connectionStatus === 'connecting' ||
+                $connectionStatus === 'waiting_reconnect'}
+              class:bg-red-500={$connectionStatus === 'disconnected'}
+              class="w-3 h-3 rounded-full ml-1 transition-colors"
+            />
+          </div>
+        {/if}
       </div>
-
-      <div class="w-full mt-4 text-sm">
-        <label class="text-neutral-600 font-medium mb-1 block" for="params">Params</label>
-        <textarea
-          id="params"
-          class="border w-full p-2 rounded"
-          rows="4"
-          bind:value={params}
-          placeholder={JSON.stringify({ key: 'value' }, null, 2)}
-        />
-      </div>
-
-      <button
-        on:click={request}
-        disabled={!connectionStatus$ || !rune || !method}
-        class="mt-2 border border-purple-500 rounded py-1 px-4 disabled:opacity-20 hover:shadow-md active:shadow-none"
-        >Request</button
-      >
-    </div>
-  </div>
-
-  <div class="w-1/2 max-w-xl p-4 border-2 rounded border-green-300 ml-4">
-    <div class="w-full text-sm">
-      <label class="text-neutral-600 font-medium mb-1 block" for="params">Result</label>
-      <textarea
-        id="params"
-        class="border w-full p-2 rounded"
-        rows="20"
-        value={result || ''}
-        placeholder={JSON.stringify({ key: 'value' }, null, 2)}
-      />
     </div>
   </div>
 </main>
 
 <div class="w-full flex justify-center mt-auto">
   <div class="p-4 border-2 rounded border-green-300">
-    <div id="sigma-container" style="width: 800px; height:800px">
-      <p>Hello world look at this graph</p>
-      <img src="https://i.imgur.com/oecHiLK.jpeg" alt="Look at this graph" height="200" width="200"/>
+    <div id="d3-container" style="width: 800px; height:800px">
+      <div class="pb-40">
+        <div class="chart" />
+      </div>
     </div>
   </div>
 </div>
