@@ -1,14 +1,14 @@
 interface Node {
-    id: number
-    name: string
+    id: number //node_id
+    name: string //node_alias if exists
 }
 
 interface Link {
-    source: number
-    target: number
+    source: number //node_id
+    target: number //node_id
 }
 
-interface GraphData {Í
+interface GraphData {
     nodes: Node[]
     links: Link[]
 }

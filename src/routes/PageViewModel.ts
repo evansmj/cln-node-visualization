@@ -14,8 +14,7 @@ export class PageViewModel {
 
   connect(address: string, rune: string) {
     this.nodeService.connect(address, rune)
-    let listPeers = nodeService.getListPeers
-    let listChannels = nodeService.getListChannels
+    let graphData = this.nodeService.getGraphData
   }
 
 }
