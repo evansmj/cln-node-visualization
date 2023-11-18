@@ -5,22 +5,29 @@
 
   let address: string
   let rune: string
-  let method: string
-  let params: string
-  let result: string
-
-  let { connectionStatus } = pageViewModel
-
   let svg: any
 
+  let connectionStatus = pageViewModel.getConnectionStatus()
+  let graphData: GraphData
+  let gotData = false
+  let graphDataPromise = pageViewModel.getGraphData()
+
+  $: if (graphDataPromise) {
+    graphDataPromise.then((data) => {
+      graphData = data
+      updateGraph(data)
+    })
+  }
+
+
   var margin = { top: 50, right: 50, bottom: 50, left: 50 },
-      width = 400 - margin.left - margin.right,
-      height = 400 - margin.top - margin.bottom
+    width = 400 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom
 
   onMount(async () => {
     //d3.selectAll('.chart').append('p').text('Hello World')
 
-
+    //viewmodel graphData is ready here.
 
     // append the svg object to the body of the page
     svg = d3
@@ -33,6 +40,7 @@
   })
 
   function updateGraph(data: GraphData) {
+    console.log("updateGraph " + data.nodes.length)
     var link = svg.selectAll('line').data(data.links).enter().append('line').style('stroke', '#aaa')
 
     var node = svg
@@ -83,7 +91,7 @@
   }
 
   function executeConnect() {
-    pageViewModel.connect('someAddress', 'someRune')
+    pageViewModel.connect(address, rune)
   }
 </script>
 
