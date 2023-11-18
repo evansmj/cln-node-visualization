@@ -1,12 +1,13 @@
 import type { Writable } from 'svelte/store';
 import { nodeService } from '../network/NodeService'
 import type { NodeService } from '../network/NodeService';
+import { BehaviorSubject, Observable } from 'rxjs'
 
 export class PageViewModel {
 
   private connectionStatus: Writable<string>
   private nodeService: NodeService
-  private graphData: Promise<GraphData>
+  private graphDataBehaviorSubject = new BehaviorSubject<GraphData | null>(null)
 
   constructor(nodeService: NodeService) {
     this.nodeService = nodeService
@@ -16,11 +17,14 @@ export class PageViewModel {
   connect(address: string, rune: string) {
     console.log("PageViewModel.connect()")
     this.nodeService.connect(address, rune)
-    this.graphData = this.nodeService.getGraphData()
+    this.nodeService.getGraphData().then(d => {
+      console.log("viewmodel getGraphData d = " + d.nodes.length)
+      this.graphDataBehaviorSubject.next(d)
+    })
   }
 
-  getGraphData(): Promise<GraphData> {
-    return this.graphData
+  getGraphData(): Observable<GraphData | null> {
+    return this.graphDataBehaviorSubject.asObservable()
   }
 
   getConnectionStatus(): Writable<string> {

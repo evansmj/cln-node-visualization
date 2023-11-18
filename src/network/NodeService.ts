@@ -48,22 +48,21 @@ export class NodeService {
   }
 
   getListChannels = async (): Promise<ListChannels> => {
-    const data = await this.request('listchannels', '')
-    const channels = Array.isArray(data) ? data : []
-
-    return { channels: channels as Channel[] }
+    const data = await this.request('listchannels', '') as ListChannels
+    return data
   }
 
   getListPeers = async (): Promise<ListPeers> => {
-    const data = await this.request('listpeers', '')
-    const peers = Array.isArray(data) ? data : []
-
-    return { peers: peers as Peer[] }
+    const data = await this.request('listpeers', '') as ListPeers
+    return data
   }
 
   getGraphData = async (): Promise<GraphData> => {
+    console.log("NodeService.getGraphData() start")
     let channelsData = await this.getListChannels()
+    console.log("channelsData = " + channelsData.channels.length)
     let peersData = await this.getListPeers()
+    console.log("peers data = " + peersData.peers.length)
 
     // create nodes from peers
     const nodes: Node[] = peersData.peers.map((peer, index) => ({
@@ -72,6 +71,10 @@ export class NodeService {
     }))
 
     const links: Link[] = channelsData.channels.map(channel => {
+      //find node.id using node.name...
+      console.log("channel source = " + channel.source)
+      console.log("channel destination = " + channel.destination)
+      nodes.every(node => console.log("node.name = " + node.name))
       const sourceNodeId = nodes.find(node => node.name === channel.source)?.id
       const targetNodeId = nodes.find(node => node.name === channel.destination)?.id
 

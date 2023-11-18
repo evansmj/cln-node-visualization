@@ -38,26 +38,28 @@ test('NodeService parses ListChannels properly', async () => {
   await nodeService.connect('03d292c7b22338ebbb92d1c4d81720e08e8dc7e91c3ce7aaf9f210e61f6788ba50@localhost:1337', 'bAgZXtcazR87N4cbUAmOeO0gtNMuYcR4RGZ-nimelC49MA==')
 
   mockCommando.withArgs(sinon.match.has('method', 'listchannels')).returns(Promise.resolve(
-    [
-      {
-        source: 'a',
-        destination: 'b',
-        short_channel_id: "123",
-        direction: 1,
-        public: true,
-        amount_msat: 123,
-        message_flags: 4355,
-        channel_flags: 43241,
-        active: true,
-        last_update: 54324324,
-        base_fee_millisatoshi: 9494,
-        fee_per_millionth: 124124,
-        delay: 4214,
-        htlc_minimum_msat: 444444,
-        htlc_maximum_msat: 2334141241,
-        features: 'feature'
-      }
-    ])
+    {
+      channels: [
+        {
+          source: 'a',
+          destination: 'b',
+          short_channel_id: "123",
+          direction: 1,
+          public: true,
+          amount_msat: 123,
+          message_flags: 4355,
+          channel_flags: 43241,
+          active: true,
+          last_update: 54324324,
+          base_fee_millisatoshi: 9494,
+          fee_per_millionth: 124124,
+          delay: 4214,
+          htlc_minimum_msat: 444444,
+          htlc_maximum_msat: 2334141241,
+          features: 'feature'
+        }
+      ]
+    })
   )
 
   let listChannels = await nodeService.getListChannels()
@@ -84,15 +86,19 @@ test('NodeService parses ListPeers properly', async () => {
   const nodeService = new NodeService()
   await nodeService.connect('03d292c7b22338ebbb92d1c4d81720e08e8dc7e91c3ce7aaf9f210e61f6788ba50@localhost:1337', 'bAgZXtcazR87N4cbUAmOeO0gtNMuYcR4RGZ-nimelC49MA==')
 
-  mockCommando.withArgs(sinon.match.has('method', 'listpeers')).returns(Promise.resolve([
+  mockCommando.withArgs(sinon.match.has('method', 'listpeers')).returns(Promise.resolve(
     {
-      id: 'id',
-      connected: true,
-      num_channels: 123,
-      netaddr: ['addr'],
-      features: 'features'
-    }
-  ]))
+      peers: [
+        {
+          id: 'id',
+          connected: true,
+          num_channels: 123,
+          netaddr: ['addr'],
+          features: 'features'
+        }
+      ]
+    })
+  )
 
   let listPeers = await nodeService.getListPeers()
 
@@ -108,56 +114,62 @@ test('NodeService getData combines listchannels and listpeers properly', async (
 
   await nodeService.connect('03d292c7b22338ebbb92d1c4d81720e08e8dc7e91c3ce7aaf9f210e61f6788ba50@localhost:1337', 'bAgZXtcazR87N4cbUAmOeO0gtNMuYcR4RGZ-nimelC49MA==')
 
-  mockCommando.withArgs(sinon.match.has('method', 'listchannels')).returns(Promise.resolve([
+  mockCommando.withArgs(sinon.match.has('method', 'listchannels')).returns(Promise.resolve(
     {
-      source: 'a',
-      destination: 'b',
-      short_channel_id: "123",
-      direction: 1,
-      public: true,
-      amount_msat: 123,
-      message_flags: 4355,
-      channel_flags: 43241,
-      active: true,
-      last_update: 54324324,
-      base_fee_millisatoshi: 9494,
-      fee_per_millionth: 124124,
-      delay: 4214,
-      htlc_minimum_msat: 444444,
-      htlc_maximum_msat: 2334141241,
-      features: 'feature'
-    }
-  ]))
+      channels: [
+        {
+          source: 'a',
+          destination: 'b',
+          short_channel_id: "123",
+          direction: 1,
+          public: true,
+          amount_msat: 123,
+          message_flags: 4355,
+          channel_flags: 43241,
+          active: true,
+          last_update: 54324324,
+          base_fee_millisatoshi: 9494,
+          fee_per_millionth: 124124,
+          delay: 4214,
+          htlc_minimum_msat: 444444,
+          htlc_maximum_msat: 2334141241,
+          features: 'feature'
+        }
+      ]
+    }))
 
-  mockCommando.withArgs(sinon.match.has('method', 'listpeers')).returns(Promise.resolve([
+  mockCommando.withArgs(sinon.match.has('method', 'listpeers')).returns(Promise.resolve(
     {
-      id: 'a',
-      connected: true,
-      num_channels: 123,
-      netaddr: ['addr'],
-      features: 'features'
-    },
-    {
-      id: 'b',
-      connected: true,
-      num_channels: 123,
-      netaddr: ['addr'],
-      features: 'features'
-    }
-  ]))
+      peers: [
+        {
+          id: 'a',
+          connected: true,
+          num_channels: 123,
+          netaddr: ['addr'],
+          features: 'features'
+        },
+        {
+          id: 'b',
+          connected: true,
+          num_channels: 123,
+          netaddr: ['addr'],
+          features: 'features'
+        }
+      ]
+    }))
 
   let graphData = await nodeService.getGraphData()
 
-    expect(graphData.nodes).toHaveLength(2);
-  
-    expect(graphData.nodes[0].id).toBe(0);
-    expect(graphData.nodes[0].name).toBe('a');
-    
-    expect(graphData.nodes[1].id).toBe(1);
-    expect(graphData.nodes[1].name).toBe('b');
-   
-    expect(graphData.links).toHaveLength(1);
-    expect(graphData.links[0].source).toBe(0);
-    expect(graphData.links[0].target).toBe(1);
+  expect(graphData.nodes).toHaveLength(2);
+
+  expect(graphData.nodes[0].id).toBe(0);
+  expect(graphData.nodes[0].name).toBe('a');
+
+  expect(graphData.nodes[1].id).toBe(1);
+  expect(graphData.nodes[1].name).toBe('b');
+
+  expect(graphData.links).toHaveLength(1);
+  expect(graphData.links[0].source).toBe(0);
+  expect(graphData.links[0].target).toBe(1);
 
 })
