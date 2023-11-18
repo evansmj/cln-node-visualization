@@ -4,8 +4,9 @@ import type { NodeService } from '../network/NodeService';
 
 export class PageViewModel {
 
-  connectionStatus: Writable<string>
-  nodeService: NodeService
+  private connectionStatus: Writable<string>
+  private nodeService: NodeService
+  private graphData: Promise<GraphData>
 
   constructor(nodeService: NodeService) {
     this.nodeService = nodeService
@@ -13,8 +14,21 @@ export class PageViewModel {
   }
 
   connect(address: string, rune: string) {
+    console.log("PageViewModel.connect()")
     this.nodeService.connect(address, rune)
-    let graphData = this.nodeService.getGraphData
+    this.graphData = this.nodeService.getGraphData()
+  }
+
+  getGraphData(): Promise<GraphData> {
+    return this.graphData
+  }
+
+  getConnectionStatus(): Writable<string> {
+    return this.connectionStatus
+  }
+
+  onDestroy() {
+    this.nodeService.disconnect()
   }
 
 }
