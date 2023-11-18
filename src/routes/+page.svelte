@@ -9,25 +9,18 @@
 
   let connectionStatus = pageViewModel.getConnectionStatus()
   let graphData: GraphData
-  let gotData = false
-  let graphDataPromise = pageViewModel.getGraphData()
+  //let graphDataPromise = pageViewModel.getGraphData()
 
-  $: if (graphDataPromise) {
-    graphDataPromise.then((data) => {
-      graphData = data
-      updateGraph(data)
-    })
+  $: if (graphData !== undefined) {
+    updateGraph(graphData)
   }
-
 
   var margin = { top: 50, right: 50, bottom: 50, left: 50 },
     width = 400 - margin.left - margin.right,
     height = 400 - margin.top - margin.bottom
 
   onMount(async () => {
-    //d3.selectAll('.chart').append('p').text('Hello World')
-
-    //viewmodel graphData is ready here.
+    console.log('onMount() pageViewModel ' + pageViewModel)
 
     // append the svg object to the body of the page
     svg = d3
@@ -37,10 +30,31 @@
       .attr('height', height + margin.top + margin.bottom)
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+
+    let graphDataObserver = {
+      next: (data: GraphData | null) => {
+        if (data !== null) {
+          console.log('GraphData: next ', data)
+          updateGraph(data)
+        } else {
+          console.log('Currently no GraphData available')
+        }
+      },
+      error: (error: any) => {
+        console.error('There was an error retrieving the GraphData:', error)
+      },
+      complete: () => {
+        console.log('GraphData Observable completed')
+      }
+    }
+    pageViewModel.getGraphData().subscribe(graphDataObserver)
+    //d3.selectAll('.chart').append('p').text('Hello World')
+
+    //viewmodel graphData is ready here.
   })
 
   function updateGraph(data: GraphData) {
-    console.log("updateGraph " + data.nodes.length)
+    console.log('updateGraph ' + data.nodes.length)
     var link = svg.selectAll('line').data(data.links).enter().append('line').style('stroke', '#aaa')
 
     var node = svg
@@ -58,7 +72,7 @@
         d3
           .forceLink()
           .id(function (d) {
-            return d.id
+            return d.name
           })
           .links(data.links)
       )
