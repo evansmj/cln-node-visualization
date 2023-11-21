@@ -2,6 +2,7 @@
   import { onMount } from 'svelte'
   import * as d3 from 'd3'
   import { pageViewModel } from './PageViewModel'
+  import type { GraphData, Link, Node } from '../network/GraphData'
 
   let address: string
   let rune: string
@@ -9,7 +10,6 @@
 
   let connectionStatus = pageViewModel.getConnectionStatus()
   let graphData: GraphData
-  //let graphDataPromise = pageViewModel.getGraphData()
 
   $: if (graphData !== undefined) {
     updateGraph(graphData)
@@ -48,9 +48,6 @@
       }
     }
     pageViewModel.getGraphData().subscribe(graphDataObserver)
-    //d3.selectAll('.chart').append('p').text('Hello World')
-
-    //viewmodel graphData is ready here.
   })
 
   function updateGraph(data: GraphData) {
@@ -72,7 +69,7 @@
         d3
           .forceLink()
           .id(function (d) {
-            return d.name
+            return d.id
           })
           .links(data.links)
       )
