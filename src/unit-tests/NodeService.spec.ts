@@ -3,6 +3,7 @@ import { get } from 'svelte/store';
 import { NodeService } from '../network/NodeService'
 import { expect } from 'vitest'
 import LnMessage from 'lnmessage';
+import { e } from 'vitest/dist/index-5aad25c1';
 
 var sinon = require("sinon")
 
@@ -168,8 +169,111 @@ test('NodeService getData combines listchannels and listpeers properly', async (
   expect(graphData.nodes[1].id).toBe(1);
   expect(graphData.nodes[1].name).toBe('b');
 
-  expect(graphData.links).toHaveLength(1);
+  expect(graphData.links).toHaveLength(1); //todo ???? wrong number of links?
   expect(graphData.links[0].source).toBe(0);
   expect(graphData.links[0].target).toBe(1);
+
+})
+
+/**
+ * listchannels '' returns A<=>B.
+ * It should traverse and end up calling listchannels b.node_id and find B<=>C
+ * and then C<=>D
+ */
+test('NodeService traverse listchannels', async () => {
+  const nodeService = new NodeService()
+
+  await nodeService.connect('03d292c7b22338ebbb92d1c4d81720e08e8dc7e91c3ce7aaf9f210e61f6788ba50@localhost:1337', 'bAgZXtcazR87N4cbUAmOeO0gtNMuYcR4RGZ-nimelC49MA==')
+
+  mockCommando.withArgs(sinon.match.has('method', 'listchannels')).returns(Promise.resolve(
+    {
+      channels: [
+        {
+          source: 'a',
+          destination: 'b',
+          short_channel_id: "1",
+          direction: 1,
+          public: true,
+          amount_msat: 123,
+          message_flags: 4355,
+          channel_flags: 43241,
+          active: true,
+          last_update: 54324324,
+          base_fee_millisatoshi: 9494,
+          fee_per_millionth: 124124,
+          delay: 4214,
+          htlc_minimum_msat: 444444,
+          htlc_maximum_msat: 2334141241,
+          features: 'feature'
+        }
+      ]
+    }))
+
+    mockCommando.withArgs(sinon.match.has('method', 'listchannels'), 'b').returns(Promise.resolve(
+      {
+        channels: [
+          {
+            source: 'b',
+            destination: 'c',
+            short_channel_id: "2",
+            direction: 1,
+            public: true,
+            amount_msat: 123,
+            message_flags: 4355,
+            channel_flags: 43241,
+            active: true,
+            last_update: 54324324,
+            base_fee_millisatoshi: 9494,
+            fee_per_millionth: 124124,
+            delay: 4214,
+            htlc_minimum_msat: 444444,
+            htlc_maximum_msat: 2334141241,
+            features: 'feature'
+          }
+        ]
+      }))
+
+      mockCommando.withArgs(sinon.match.has('method', 'listchannels'), 'c').returns(Promise.resolve(
+        {
+          channels: [
+            {
+              source: 'c',
+              destination: 'd',
+              short_channel_id: "3",
+              direction: 1,
+              public: true,
+              amount_msat: 123,
+              message_flags: 4355,
+              channel_flags: 43241,
+              active: true,
+              last_update: 54324324,
+              base_fee_millisatoshi: 9494,
+              fee_per_millionth: 124124,
+              delay: 4214,
+              htlc_minimum_msat: 444444,
+              htlc_maximum_msat: 2334141241,
+              features: 'feature'
+            }
+          ]
+        }))
+
+        let graphData = nodeService.getGraphData2()
+
+        expect(graphData.nodes).toHaveLength(3);
+
+        expect(graphData.nodes[0].id).toBe(0);
+        expect(graphData.nodes[0].name).toBe('a');
+      
+        expect(graphData.nodes[1].id).toBe(1);
+        expect(graphData.nodes[1].name).toBe('b');
+
+        expect(graphData.nodes[2].id).toBe(2);
+        expect(graphData.nodes[2].name).toBe(2);
+
+        expect(graphData.links).toHaveLength(4);
+        expect(graphData.links[0].source).toBe(0);
+        expect(graphData.links[0].target).toBe(1);
+        //write the rest of the links.  what order do they end up in?
+
 
 })

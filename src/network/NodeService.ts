@@ -5,6 +5,7 @@ import type { Writable } from 'svelte/store';
 import { subscribe } from 'svelte/internal';
 import { Subject } from 'rxjs'
 import type { Subscription } from 'rxjs'
+import type { Node, Link, GraphData } from './GraphData'
 
 export class NodeService {
   connectionStatus: Writable<string>;
@@ -60,21 +61,35 @@ export class NodeService {
   getGraphData = async (): Promise<GraphData> => {
     console.log("NodeService.getGraphData() start")
     let channelsData = await this.getListChannels()
-    console.log("channelsData = " + channelsData.channels.length)
-    let peersData = await this.getListPeers()
-    console.log("peers data = " + peersData.peers.length)
 
-    // create nodes from peers
-    const nodes: Node[] = peersData.peers.map((peer, index) => ({
+
+    console.log("channelsData = " + channelsData.channels.length)
+
+    // create nodes from all sources and destinations from listchannels...
+
+    const nodeIdSet = new Set()
+
+    channelsData.channels.forEach((channel) => {
+      nodeIdSet.add(channel.source)
+      nodeIdSet.add(channel.destination)
+    })
+
+    //now add all to indexed nodes
+
+    const nodes: Node[] = Array.from(nodeIdSet).map((nodeId, index) => ({
       id: index,
-      name: peer.id // Assign peer.id as node name. Use peer.node_alias if exists
+      name: nodeId
     }))
+
+    console.log("nodes = " + nodes.length)
 
     const links: Link[] = channelsData.channels.map(channel => {
       //find node.id using node.name...
       console.log("channel source = " + channel.source)
       console.log("channel destination = " + channel.destination)
+
       nodes.every(node => console.log("node.name = " + node.name))
+      
       const sourceNodeId = nodes.find(node => node.name === channel.source)?.id
       const targetNodeId = nodes.find(node => node.name === channel.destination)?.id
 
