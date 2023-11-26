@@ -164,6 +164,20 @@
       <Section>
         <Title>Lightning Channel Visualizer</Title>
       </Section>
+      {#if $connectionStatus}
+      <Section align="end">
+      <div class="flex items-center">
+        <div class="text-sm">{$connectionStatus}</div>
+        <div
+          class:bg-green-500={$connectionStatus === 'connected'}
+          class:bg-yellow-500={$connectionStatus === 'connecting' ||
+            $connectionStatus === 'waiting_reconnect'}
+          class:bg-red-500={$connectionStatus === 'disconnected'}
+          class="w-3 h-3 rounded-full ml-1 transition-colors"
+        />
+      </div>
+      </Section>
+    {/if}
     </Row>
   </TopAppBar>
 
