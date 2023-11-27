@@ -2,6 +2,7 @@ import type { Writable } from 'svelte/store';
 import { nodeService } from '../network/NodeService'
 import type { NodeService } from '../network/NodeService';
 import { BehaviorSubject, Observable } from 'rxjs'
+import type { GraphData } from '../network/GraphData';
 
 export class PageViewModel {
 

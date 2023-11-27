@@ -49,25 +49,21 @@ export class NodeService {
   }
 
   getListChannels = async (): Promise<ListChannels> => {
-    const data = await this.request('listchannels', '') as ListChannels
-    return data
+    return await this.request('listchannels', '') as ListChannels
   }
 
-  getListPeers = async (): Promise<ListPeers> => {
-    const data = await this.request('listpeers', '') as ListPeers
-    return data
+  getListNodes = async (): Promise<ListNodes> => {
+    return await this.request('listnodes', '') as ListNodes
   }
 
   getGraphData = async (): Promise<GraphData> => {
     console.log("NodeService.getGraphData() start")
     let channelsData = await this.getListChannels()
-
-
-    console.log("channelsData = " + channelsData.channels.length)
+    let listNodesData = await this.getListNodes()
 
     // create nodes from all sources and destinations from listchannels...
 
-    const nodeIdSet = new Set()
+    const nodeIdSet = new Set<string>()
 
     channelsData.channels.forEach((channel) => {
       nodeIdSet.add(channel.source)
@@ -76,22 +72,20 @@ export class NodeService {
 
     //now add all to indexed nodes
 
-    const nodes: Node[] = Array.from(nodeIdSet).map((nodeId, index) => ({
+    const nodes: Node[] = Array.from(nodeIdSet).map((nodeIdFromSet, index) => {
+      const node = listNodesData.nodes.find(({ nodeid }) => nodeid === nodeIdFromSet)
+
+      return {
       id: index,
-      name: nodeId
-    }))
+      nodeId: nodeIdFromSet,
+      name: node ? node.alias : nodeIdFromSet,
+      color: node ? node.color : "#F7931A"
+      }
+    })
 
-    console.log("nodes = " + nodes.length)
-
-    const links: Link[] = channelsData.channels.map(channel => {
-      //find node.id using node.name...
-      console.log("channel source = " + channel.source)
-      console.log("channel destination = " + channel.destination)
-
-      nodes.every(node => console.log("node.name = " + node.name))
-      
-      const sourceNodeId = nodes.find(node => node.name === channel.source)?.id
-      const targetNodeId = nodes.find(node => node.name === channel.destination)?.id
+    const links: Link[] = channelsData.channels.map(channel => {      
+      const sourceNodeId = nodes.find(node => node.nodeId === channel.source)?.id
+      const targetNodeId = nodes.find(node => node.nodeId === channel.destination)?.id
 
       if (sourceNodeId === undefined || targetNodeId === undefined) {
         return null;

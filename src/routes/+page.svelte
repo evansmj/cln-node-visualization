@@ -18,7 +18,8 @@
   let connectionStatus = pageViewModel.getConnectionStatus()
   let graphData: GraphData
 
-  let nodeRadius = 45
+  let nodeRadius = 100
+  let color = d3.scaleOrdinal(d3.schemeCategory10);
 
   $: if (graphData !== undefined) {
     updateGraph(graphData)
@@ -36,9 +37,11 @@
 
     g = svg.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
 
-    svg.call(d3.zoom().on("zoom", (event: { transform: any }) => {
-      g.attr("transform", event.transform)
-    }))
+    svg.call(
+      d3.zoom().on('zoom', (event: { transform: any }) => {
+        g.attr('transform', event.transform)
+      })
+    )
 
     svg
       .append('defs')
@@ -87,24 +90,27 @@
         return 'link-source=-' + d.source.id + ' target-' + d.target.id
       })
       .attr('d', pathD)
-      //.append('line')
       .attr('fill', 'none')
       .style('stroke', '#aaa')
       .attr('marker-end', 'url(#end)')
 
     var node = g.selectAll('.node').data(data.nodes).enter().append('g').attr('class', 'node')
 
-    node.append('circle').attr('r', nodeRadius).style('fill', '#69b3a2')
+    node.append('circle')
+      .attr('r', nodeRadius)
+      .style('fill', function(d: Node, i: number) {
+        return color(d.color)
+      })
 
     node
       .append('text')
       .text(function (d: Node) {
-        return d.name.substring(0, 4)
+        return d.name
       })
       .attr('text-anchor', 'middle')
       .attr('dy', '.35em')
-      .style('font-size', '10px')
-      .attr('fill', '#000')
+      .style('font-size', '15px')
+      .attr('fill', '#ffffff')
 
     var simulation = d3
       .forceSimulation(data.nodes)
@@ -119,7 +125,7 @@
       )
       .force('charge', d3.forceManyBody().strength(-400))
       .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('collide', d3.forceCollide(120))
+      .force('collide', d3.forceCollide(200))
       .on('tick', ticked)
 
     function ticked() {
@@ -128,6 +134,8 @@
       node.attr('transform', function (d) {
         return 'translate(' + d.x + ',' + d.y + ')'
       })
+
+      node.selectAll('text').call(wrap, 150)
     }
 
     function pathD(d) {
@@ -145,6 +153,41 @@
         y2 = d.target.y - Math.sin(angle0) * radius
 
       return `M${x1},${y1}A${dr},${dr} 0 0,1 ${x2},${y2}`
+    }
+
+    function wrap(text: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, width: number) {
+      text.each(function () {
+        var text = d3.select(this),
+          words = Array.from(text.text()),
+          word,
+          line: {}[] = [],
+          lineNumber = 0,
+          lineHeight = 1.1, // ems
+          y = text.attr('y'),
+          dy = parseFloat(text.attr('dy') || '0'),
+          tspan = text
+            .text(null)
+            .append('tspan')
+            .attr('x', 0)
+            .attr('y', y)
+            .attr('dy', dy + 'em')
+
+        while ((word = words.shift())) {
+          line.push(word)
+          tspan.text(line.join(''))
+          if ((tspan.node() as SVGTextContentElement).getComputedTextLength() > width) {
+            line.pop()
+            tspan.text(line.join(''))
+            line = [word]
+            tspan = text
+              .append('tspan')
+              .attr('x', 0)
+              .attr('y', y)
+              .attr('dy', ++lineNumber * lineHeight + dy + 'em')
+              .text(word)
+          }
+        }
+      })
     }
   }
 
@@ -165,19 +208,19 @@
         <Title>Lightning Channel Visualizer</Title>
       </Section>
       {#if $connectionStatus}
-      <Section align="end">
-      <div class="flex items-center">
-        <div class="text-sm">{$connectionStatus}</div>
-        <div
-          class:bg-green-500={$connectionStatus === 'connected'}
-          class:bg-yellow-500={$connectionStatus === 'connecting' ||
-            $connectionStatus === 'waiting_reconnect'}
-          class:bg-red-500={$connectionStatus === 'disconnected'}
-          class="w-3 h-3 rounded-full ml-1 transition-colors"
-        />
-      </div>
-      </Section>
-    {/if}
+        <Section align="end">
+          <div class="flex items-center">
+            <div class="text-sm">{$connectionStatus}</div>
+            <div
+              class:bg-green-500={$connectionStatus === 'connected'}
+              class:bg-yellow-500={$connectionStatus === 'connecting' ||
+                $connectionStatus === 'waiting_reconnect'}
+              class:bg-red-500={$connectionStatus === 'disconnected'}
+              class="w-3 h-3 rounded-full ml-1 transition-colors"
+            />
+          </div>
+        </Section>
+      {/if}
     </Row>
   </TopAppBar>
 
@@ -265,7 +308,7 @@
 
 <style>
   main {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Roboto', sans-serif;
   }
 
   :global(.mdc-top-app-bar__title) {

@@ -3,7 +3,6 @@ import { get } from 'svelte/store';
 import { NodeService } from '../network/NodeService'
 import { expect } from 'vitest'
 import LnMessage from 'lnmessage';
-import { e } from 'vitest/dist/index-5aad25c1';
 
 var sinon = require("sinon")
 
@@ -83,197 +82,45 @@ test('NodeService parses ListChannels properly', async () => {
   expect(listChannels.channels[0].features).toBe('feature');
 })
 
-test('NodeService parses ListPeers properly', async () => {
+test('NodeService parses ListNodes properly', async () => {
   const nodeService = new NodeService()
   await nodeService.connect('03d292c7b22338ebbb92d1c4d81720e08e8dc7e91c3ce7aaf9f210e61f6788ba50@localhost:1337', 'bAgZXtcazR87N4cbUAmOeO0gtNMuYcR4RGZ-nimelC49MA==')
 
-  mockCommando.withArgs(sinon.match.has('method', 'listpeers')).returns(Promise.resolve(
+  mockCommando.withArgs(sinon.match.has('method', 'listnodes')).returns(Promise.resolve(
     {
-      peers: [
+      nodes: [
         {
-          id: 'id',
-          connected: true,
-          num_channels: 123,
-          netaddr: ['addr'],
-          features: 'features'
+          nodeid: 'id',
+          alias: 'alias',
+          color: 'orange',
+          last_timestamp: 1337,
+          features: 'features',
+          addresses: ["a, b, c"],
+          option_will_fund: {
+            lease_fee_base_msat: 1,
+            lease_fee_basis: 2,
+            funding_weight: 3,
+            channel_fee_max_base_msat: 4,
+            channel_fee_max_proportional_thousandths: 5,
+            compact_lease: "compact_lease"
+          }
         }
       ]
     })
   )
 
-  let listPeers = await nodeService.getListPeers()
+  let listPeers = await nodeService.getListNodes()
 
-  expect(listPeers.peers[0].id).toBe('id');
-  expect(listPeers.peers[0].connected).toBe(true);
-  expect(listPeers.peers[0].num_channels).toBe(123);
-  expect(listPeers.peers[0].netaddr).toEqual(['addr']);
-  expect(listPeers.peers[0].features).toBe('features');
-})
-
-test('NodeService getData combines listchannels and listpeers properly', async () => {
-  const nodeService = new NodeService()
-
-  await nodeService.connect('03d292c7b22338ebbb92d1c4d81720e08e8dc7e91c3ce7aaf9f210e61f6788ba50@localhost:1337', 'bAgZXtcazR87N4cbUAmOeO0gtNMuYcR4RGZ-nimelC49MA==')
-
-  mockCommando.withArgs(sinon.match.has('method', 'listchannels')).returns(Promise.resolve(
-    {
-      channels: [
-        {
-          source: 'a',
-          destination: 'b',
-          short_channel_id: "123",
-          direction: 1,
-          public: true,
-          amount_msat: 123,
-          message_flags: 4355,
-          channel_flags: 43241,
-          active: true,
-          last_update: 54324324,
-          base_fee_millisatoshi: 9494,
-          fee_per_millionth: 124124,
-          delay: 4214,
-          htlc_minimum_msat: 444444,
-          htlc_maximum_msat: 2334141241,
-          features: 'feature'
-        }
-      ]
-    }))
-
-  mockCommando.withArgs(sinon.match.has('method', 'listpeers')).returns(Promise.resolve(
-    {
-      peers: [
-        {
-          id: 'a',
-          connected: true,
-          num_channels: 123,
-          netaddr: ['addr'],
-          features: 'features'
-        },
-        {
-          id: 'b',
-          connected: true,
-          num_channels: 123,
-          netaddr: ['addr'],
-          features: 'features'
-        }
-      ]
-    }))
-
-  let graphData = await nodeService.getGraphData()
-
-  expect(graphData.nodes).toHaveLength(2);
-
-  expect(graphData.nodes[0].id).toBe(0);
-  expect(graphData.nodes[0].name).toBe('a');
-
-  expect(graphData.nodes[1].id).toBe(1);
-  expect(graphData.nodes[1].name).toBe('b');
-
-  expect(graphData.links).toHaveLength(1); //todo ???? wrong number of links?
-  expect(graphData.links[0].source).toBe(0);
-  expect(graphData.links[0].target).toBe(1);
-
-})
-
-/**
- * listchannels '' returns A<=>B.
- * It should traverse and end up calling listchannels b.node_id and find B<=>C
- * and then C<=>D
- */
-test('NodeService traverse listchannels', async () => {
-  const nodeService = new NodeService()
-
-  await nodeService.connect('03d292c7b22338ebbb92d1c4d81720e08e8dc7e91c3ce7aaf9f210e61f6788ba50@localhost:1337', 'bAgZXtcazR87N4cbUAmOeO0gtNMuYcR4RGZ-nimelC49MA==')
-
-  mockCommando.withArgs(sinon.match.has('method', 'listchannels')).returns(Promise.resolve(
-    {
-      channels: [
-        {
-          source: 'a',
-          destination: 'b',
-          short_channel_id: "1",
-          direction: 1,
-          public: true,
-          amount_msat: 123,
-          message_flags: 4355,
-          channel_flags: 43241,
-          active: true,
-          last_update: 54324324,
-          base_fee_millisatoshi: 9494,
-          fee_per_millionth: 124124,
-          delay: 4214,
-          htlc_minimum_msat: 444444,
-          htlc_maximum_msat: 2334141241,
-          features: 'feature'
-        }
-      ]
-    }))
-
-    mockCommando.withArgs(sinon.match.has('method', 'listchannels'), 'b').returns(Promise.resolve(
-      {
-        channels: [
-          {
-            source: 'b',
-            destination: 'c',
-            short_channel_id: "2",
-            direction: 1,
-            public: true,
-            amount_msat: 123,
-            message_flags: 4355,
-            channel_flags: 43241,
-            active: true,
-            last_update: 54324324,
-            base_fee_millisatoshi: 9494,
-            fee_per_millionth: 124124,
-            delay: 4214,
-            htlc_minimum_msat: 444444,
-            htlc_maximum_msat: 2334141241,
-            features: 'feature'
-          }
-        ]
-      }))
-
-      mockCommando.withArgs(sinon.match.has('method', 'listchannels'), 'c').returns(Promise.resolve(
-        {
-          channels: [
-            {
-              source: 'c',
-              destination: 'd',
-              short_channel_id: "3",
-              direction: 1,
-              public: true,
-              amount_msat: 123,
-              message_flags: 4355,
-              channel_flags: 43241,
-              active: true,
-              last_update: 54324324,
-              base_fee_millisatoshi: 9494,
-              fee_per_millionth: 124124,
-              delay: 4214,
-              htlc_minimum_msat: 444444,
-              htlc_maximum_msat: 2334141241,
-              features: 'feature'
-            }
-          ]
-        }))
-
-        let graphData = nodeService.getGraphData2()
-
-        expect(graphData.nodes).toHaveLength(3);
-
-        expect(graphData.nodes[0].id).toBe(0);
-        expect(graphData.nodes[0].name).toBe('a');
-      
-        expect(graphData.nodes[1].id).toBe(1);
-        expect(graphData.nodes[1].name).toBe('b');
-
-        expect(graphData.nodes[2].id).toBe(2);
-        expect(graphData.nodes[2].name).toBe(2);
-
-        expect(graphData.links).toHaveLength(4);
-        expect(graphData.links[0].source).toBe(0);
-        expect(graphData.links[0].target).toBe(1);
-        //write the rest of the links.  what order do they end up in?
-
-
+  expect(listPeers.nodes[0].nodeid).toBe('id');
+  expect(listPeers.nodes[0].alias).toBe('alias');
+  expect(listPeers.nodes[0].color).toBe('orange');
+  expect(listPeers.nodes[0].last_timestamp).toBe(1337);
+  expect(listPeers.nodes[0].features).toBe('features');
+  expect(listPeers.nodes[0].addresses).toEqual(["a, b, c"]);
+  expect(listPeers.nodes[0].option_will_fund.lease_fee_base_msat).toBe(1);
+  expect(listPeers.nodes[0].option_will_fund.lease_fee_basis).toBe(2);
+  expect(listPeers.nodes[0].option_will_fund.funding_weight).toBe(3);
+  expect(listPeers.nodes[0].option_will_fund.channel_fee_max_base_msat).toBe(4);
+  expect(listPeers.nodes[0].option_will_fund.channel_fee_max_proportional_thousandths).toBe(5);
+  expect(listPeers.nodes[0].option_will_fund.compact_lease).toBe("compact_lease");
 })
