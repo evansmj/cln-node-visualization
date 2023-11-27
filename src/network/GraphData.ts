@@ -10,6 +10,7 @@ export interface Node {
 export interface Link {
     source: number //by index in list
     target: number //by index in list
+    color: string //color of the source node
 }
 
 export interface GraphData {
