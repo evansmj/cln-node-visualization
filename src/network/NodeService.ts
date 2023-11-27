@@ -76,16 +76,17 @@ export class NodeService {
       const node = listNodesData.nodes.find(({ nodeid }) => nodeid === nodeIdFromSet)
 
       return {
-      id: index,
-      nodeId: nodeIdFromSet,
-      name: node ? node.alias : nodeIdFromSet,
-      color: node ? node.color : "#F7931A"
+        id: index,
+        nodeId: nodeIdFromSet,
+        name: node ? node.alias : nodeIdFromSet,
+        color: node ? node.color : "#F7931A"
       }
     })
 
-    const links: Link[] = channelsData.channels.map(channel => {      
+    const links: Link[] = channelsData.channels.map(channel => {
       const sourceNodeId = nodes.find(node => node.nodeId === channel.source)?.id
       const targetNodeId = nodes.find(node => node.nodeId === channel.destination)?.id
+      const sourceNodeColor = nodes.find(node => node.nodeId === channel.source)?.color
 
       if (sourceNodeId === undefined || targetNodeId === undefined) {
         return null;
@@ -94,6 +95,7 @@ export class NodeService {
       return {
         source: sourceNodeId,
         target: targetNodeId,
+        color: sourceNodeColor
       };
     }).filter(link => link !== null) as Link[]
 

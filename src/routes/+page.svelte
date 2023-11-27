@@ -6,7 +6,6 @@
   import Banner, { Label, CloseReason } from '@smui/banner'
   import TopAppBar, { Row, Section, Title } from '@smui/top-app-bar'
   import Textfield, { Input } from '@smui/textfield'
-  import Icon from '@smui/textfield/icon'
   import HelperText from '@smui/textfield/helper-text'
   import Button from '@smui/button'
 
@@ -51,7 +50,7 @@
       .append('marker')
       .attr('id', 'end')
       .attr('viewBox', '0 -5 10 10')
-      .attr('refX', 0)
+      .attr('refX', 8)
       .attr('refY', 0)
       .attr('markerWidth', 6)
       .attr('markerHeight', 6)
@@ -80,7 +79,22 @@
   })
 
   function updateGraph(data: GraphData) {
-    console.log('updateGraph ' + data.nodes.length)
+    var defs = svg.append('svg:defs');
+
+    data.links.forEach((link, index) => {
+      defs.append('svg:marker')
+        .attr('id', 'arrowhead' + index)
+        .attr('viewBox', '0 -5 10 10')
+        .attr('refX', 8)
+        .attr('refY', 0)
+        .attr('orient', 'auto')
+        .attr('markerWidth', 6)
+        .attr('markerHeight', 6)
+        .append('svg:path')
+          .attr('d', 'M0,-5L10,0L0,5')
+          .attr('fill', color(link.color));  // Apply color to the marker
+    });
+
     var link = g
       .selectAll('line')
       .data(data.links)
@@ -91,8 +105,10 @@
       })
       .attr('d', pathD)
       .attr('fill', 'none')
-      .style('stroke', '#aaa')
-      .attr('marker-end', 'url(#end)')
+      .style('stroke-width', '6px')
+      //.attr('marker-end', 'url(#end)')
+      .attr('marker-end', (d, i) => 'url(#arrowhead' + i + ')')  // Apply the marker to the path
+      .style("stroke", function(d) { return color(d.color) })
 
     var node = g.selectAll('.node').data(data.nodes).enter().append('g').attr('class', 'node')
 
@@ -144,7 +160,6 @@
         dy = d.target.y - d.source.y,
         dr = Math.sqrt(dx * dx + dy * dy) * 1.3, // Add a multiplier to make dr longer
         angle0 = Math.atan2(dy, dx),
-        //nodeRadius = 45, // Your node radius
         markerWidth = 6, // Your marker width
         radius = nodeRadius + markerWidth
 
