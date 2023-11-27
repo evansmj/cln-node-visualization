@@ -19,7 +19,7 @@
   let graphData: GraphData
 
   let nodeRadius = 100
-  let color = d3.scaleOrdinal(d3.schemeCategory10);
+  let color = d3.scaleOrdinal(d3.schemeCategory10)
 
   $: if (graphData !== undefined) {
     updateGraph(graphData)
@@ -96,9 +96,10 @@
 
     var node = g.selectAll('.node').data(data.nodes).enter().append('g').attr('class', 'node')
 
-    node.append('circle')
+    node
+      .append('circle')
       .attr('r', nodeRadius)
-      .style('fill', function(d: Node, i: number) {
+      .style('fill', function (d: Node, i: number) {
         return color(d.color)
       })
 
@@ -197,30 +198,11 @@
 </script>
 
 <main class="flex flex-col h-screen">
-  <!--{#if ln}
-    <div class="absolute top-1 right-1 px-2 py-1 border-green-600 rounded border text-sm">
-      Browser Id: {`${ln.publicKey.slice(0, 8)}...${ln.publicKey.slice(-8)}`}
-    </div>
-  {/if}-->
   <TopAppBar class="z-50 customTopBar" variant="static">
     <Row>
       <Section>
         <Title>Lightning Channel Visualizer</Title>
       </Section>
-      {#if $connectionStatus}
-        <Section align="end">
-          <div class="flex items-center">
-            <div class="text-sm">{$connectionStatus}</div>
-            <div
-              class:bg-green-500={$connectionStatus === 'connected'}
-              class:bg-yellow-500={$connectionStatus === 'connecting' ||
-                $connectionStatus === 'waiting_reconnect'}
-              class:bg-red-500={$connectionStatus === 'disconnected'}
-              class="w-3 h-3 rounded-full ml-1 transition-colors"
-            />
-          </div>
-        </Section>
-      {/if}
     </Row>
   </TopAppBar>
 
@@ -269,31 +251,44 @@
   </div-->
 
   <div
-    class="footer pl-4 pr-4 pt-4 pb-4 bottom-0 w-screen flex flex-row justify-between items-center"
+    class="footer pl-4 pr-4 pt-4 pb-4 bottom-0 w-screen flex flex-wrap flex-row justify-between items-center"
   >
-    <div>
+    <div class="textfield" style="flex: 2;">
       <Textfield variant="standard" bind:value={address} label="Address">
         <HelperText persistent slot="helper"
           >033f4bbfcd67bd0fc858499929a3255d063999ee23f4c5e12b8b1089e132b3e408@localhost:7272</HelperText
         >
       </Textfield>
     </div>
-    <div>
+    
+    <div class="textfield" style="flex: 1">
       <Textfield variant="standard" bind:value={rune} label="Rune">
         <HelperText persistent slot="helper"
           >O2osJxV-6lGUgAf-0NllduniYbq1Zkn-45trtbx4qAE9MA==</HelperText
         >
       </Textfield>
     </div>
-    <div>
+    <div class="mt-auto" style="display: flex; flex-direction: column; flex: 1">
       <Button
         class="load-button"
         variant="raised"
         on:click={() => executeConnect()}
         disabled={!address || !rune}
       >
-        <Label class="font-bold">Load</Label>
+        <Label class="font-bold">Draw</Label>
       </Button>
+      {#if $connectionStatus}
+        <div class="flex items-center justify-end">
+          <div class="text-sm" style="color: rgba(0, 0, 0, 0.6); font-size: 0.75rem;">{$connectionStatus}</div>
+          <div
+            class:bg-green-500={$connectionStatus === 'connected'}
+            class:bg-yellow-500={$connectionStatus === 'connecting' ||
+              $connectionStatus === 'waiting_reconnect'}
+            class:bg-red-500={$connectionStatus === 'disconnected'}
+            class="w-3 h-3 rounded-full ml-1 transition-colors"
+          />
+        </div>
+      {/if}
     </div>
   </div>
 </main>
@@ -320,7 +315,17 @@
   }
 
   :global(.mdc-text-field) {
-    width: 50rem;
+    width: 48rem;
+  }
+
+  .textfield{
+    width: 100%;
+  }
+
+  @media(min-width: 1024px) {
+    .textfield {
+      width: 48rem;
+    }
   }
 
   .footer {
