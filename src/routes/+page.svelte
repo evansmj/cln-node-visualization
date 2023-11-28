@@ -18,6 +18,8 @@
   let graphData: GraphData
 
   let nodeRadius = 100
+  let markerWidth = 6
+  let markerHeight = 6
   let color = d3.scaleOrdinal(d3.schemeCategory10)
 
   $: if (graphData !== undefined) {
@@ -50,10 +52,10 @@
       .append('marker')
       .attr('id', 'end')
       .attr('viewBox', '0 -5 10 10')
-      .attr('refX', 8)
+      .attr('refX', 0)
       .attr('refY', 0)
-      .attr('markerWidth', 6)
-      .attr('markerHeight', 6)
+      .attr('markerWidth', markerWidth)
+      .attr('markerHeight', markerHeight)
       .attr('orient', 'auto')
       .append('path')
       .attr('d', 'M0, -5L10,0L0,5')
@@ -79,21 +81,22 @@
   })
 
   function updateGraph(data: GraphData) {
-    var defs = svg.append('svg:defs');
+    var defs = svg.append('svg:defs')
 
     data.links.forEach((link, index) => {
-      defs.append('svg:marker')
+      defs
+        .append('svg:marker')
         .attr('id', 'arrowhead' + index)
         .attr('viewBox', '0 -5 10 10')
-        .attr('refX', 8)
+        .attr('refX', 0)
         .attr('refY', 0)
         .attr('orient', 'auto')
-        .attr('markerWidth', 6)
-        .attr('markerHeight', 6)
+        .attr('markerWidth', markerWidth)
+        .attr('markerHeight', markerHeight)
         .append('svg:path')
-          .attr('d', 'M0,-5L10,0L0,5')
-          .attr('fill', color(link.color));  // Apply color to the marker
-    });
+        .attr('d', 'M0,-5L10,0L0,5')
+        .attr('fill', '#000000') // Apply color to the marker
+    })
 
     var link = g
       .selectAll('line')
@@ -107,8 +110,8 @@
       .attr('fill', 'none')
       .style('stroke-width', '6px')
       //.attr('marker-end', 'url(#end)')
-      .attr('marker-end', (d, i) => 'url(#arrowhead' + i + ')')  // Apply the marker to the path
-      .style("stroke", function(d) { return color(d.color) })
+      .attr('marker-end', (d, i) => 'url(#arrowhead' + i + ')') // Apply the marker to the path
+      .style('stroke', '#000000')
 
     var node = g.selectAll('.node').data(data.nodes).enter().append('g').attr('class', 'node')
 
@@ -158,17 +161,15 @@
     function pathD(d) {
       const dx = d.target.x - d.source.x,
         dy = d.target.y - d.source.y,
-        dr = Math.sqrt(dx * dx + dy * dy) * 1.3, // Add a multiplier to make dr longer
         angle0 = Math.atan2(dy, dx),
-        markerWidth = 6, // Your marker width
-        radius = nodeRadius + markerWidth
+        arrowLen = 37 // replace with the actual length of your arrowhead
 
-      const x1 = d.source.x + Math.cos(angle0) * nodeRadius,
-        y1 = d.source.y + Math.sin(angle0) * nodeRadius,
-        x2 = d.target.x - Math.cos(angle0) * radius,
-        y2 = d.target.y - Math.sin(angle0) * radius
+      const x1 = d.source.x + Math.cos(angle0) * (nodeRadius + arrowLen),
+        y1 = d.source.y + Math.sin(angle0) * (nodeRadius + arrowLen),
+        x2 = d.target.x - Math.cos(angle0) * (nodeRadius + arrowLen),
+        y2 = d.target.y - Math.sin(angle0) * (nodeRadius + arrowLen)
 
-      return `M${x1},${y1}A${dr},${dr} 0 0,1 ${x2},${y2}`
+      return `M${x1},${y1}L${x2},${y2}`
     }
 
     function wrap(text: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, width: number) {
@@ -275,7 +276,7 @@
         >
       </Textfield>
     </div>
-    
+
     <div class="textfield" style="flex: 1">
       <Textfield variant="standard" bind:value={rune} label="Rune">
         <HelperText persistent slot="helper"
@@ -294,7 +295,9 @@
       </Button>
       {#if $connectionStatus}
         <div class="flex items-center justify-end">
-          <div class="text-sm" style="color: rgba(0, 0, 0, 0.6); font-size: 0.75rem;">{$connectionStatus}</div>
+          <div class="text-sm" style="color: rgba(0, 0, 0, 0.6); font-size: 0.75rem;">
+            {$connectionStatus}
+          </div>
           <div
             class:bg-green-500={$connectionStatus === 'connected'}
             class:bg-yellow-500={$connectionStatus === 'connecting' ||
@@ -333,11 +336,11 @@
     width: 48rem;
   }
 
-  .textfield{
+  .textfield {
     width: 100%;
   }
 
-  @media(min-width: 1024px) {
+  @media (min-width: 1024px) {
     .textfield {
       width: 48rem;
     }
