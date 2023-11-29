@@ -18,3 +18,9 @@ npm run dev
 ```
 
 4. Open up [http://localhost:5173](http://localhost:5371) in your browser
+
+## Credits
+This is based on boilerplate from https://github.com/aaronbarnardsound/create-coreln-app.
+This uses lnmessage https://github.com/aaronbarnardsound/lnmessage to communicate with lightning network nodes.
+This uses d3.js https://d3js.org/ to draw the graph.
+This uses Svelte Material UI https://sveltematerialui.com/ for ui components.
