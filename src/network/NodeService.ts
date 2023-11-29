@@ -23,15 +23,17 @@ export class NodeService {
     }
   }
 
-  connect = async (address: string, runeValue: string) => {
+  connect = async (address: string, runeValue: string, useTls: boolean) => {
     const { publicKey, ip, port } = parseNodeAddress(address);
     this.rune = runeValue;
+
+    let wsProtocol: "wss:" | "ws:" | undefined = useTls ? "wss:" : "ws:";
 
     this.ln = new Lnmessage({
       remoteNodePublicKey: publicKey,
       ip,
       port,
-      wsProtocol: 'ws:',
+      wsProtocol: wsProtocol,
       logger: {
         info: console.log,
         error: console.error,

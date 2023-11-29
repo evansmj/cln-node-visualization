@@ -8,9 +8,12 @@
   import Textfield, { Input } from '@smui/textfield'
   import HelperText from '@smui/textfield/helper-text'
   import Button from '@smui/button'
+  import Checkbox from '@smui/checkbox'
+  import FormField from '@smui/form-field'
 
   let address: string = ''
   let rune: string = ''
+  let useTls: boolean = false
   let svg: any
   let g: any
 
@@ -109,7 +112,6 @@
       .attr('d', pathD)
       .attr('fill', 'none')
       .style('stroke-width', '6px')
-      //.attr('marker-end', 'url(#end)')
       .attr('marker-end', (d, i) => 'url(#arrowhead' + i + ')') // Apply the marker to the path
       .style('stroke', '#000000')
 
@@ -162,12 +164,12 @@
       const dx = d.target.x - d.source.x,
         dy = d.target.y - d.source.y,
         angle0 = Math.atan2(dy, dx),
-        arrowLen = 37 // replace with the actual length of your arrowhead
+        arrowLength = 37
 
-      const x1 = d.source.x + Math.cos(angle0) * (nodeRadius + arrowLen),
-        y1 = d.source.y + Math.sin(angle0) * (nodeRadius + arrowLen),
-        x2 = d.target.x - Math.cos(angle0) * (nodeRadius + arrowLen),
-        y2 = d.target.y - Math.sin(angle0) * (nodeRadius + arrowLen)
+      const x1 = d.source.x + Math.cos(angle0) * (nodeRadius + arrowLength),
+        y1 = d.source.y + Math.sin(angle0) * (nodeRadius + arrowLength),
+        x2 = d.target.x - Math.cos(angle0) * (nodeRadius + arrowLength),
+        y2 = d.target.y - Math.sin(angle0) * (nodeRadius + arrowLength)
 
       return `M${x1},${y1}L${x2},${y2}`
     }
@@ -209,16 +211,31 @@
   }
 
   function executeConnect() {
-    pageViewModel.connect(address, rune)
+    pageViewModel.connect(address, rune, useTls)
   }
 </script>
 
 <main class="flex flex-col h-screen">
-  <TopAppBar class="z-50 customTopBar" variant="static">
+  <TopAppBar class="z-50 customTopBar sticky top-0" variant="static">
     <Row>
       <Section>
         <Title>Lightning Channel Visualizer</Title>
       </Section>
+
+      {#if $connectionStatus}
+        <Section>
+          <div class="absolute right-0 top-17 text-right p-2 z-50">
+            <div style="color: #ededed" class="text-sm inline-block">{$connectionStatus}</div>
+            <div
+              class:bg-green-500={$connectionStatus === 'connected'}
+              class:bg-yellow-500={$connectionStatus === 'connecting' ||
+                $connectionStatus === 'waiting_reconnect'}
+              class:bg-red-500={$connectionStatus === 'disconnected'}
+              class="w-3 h-3 rounded-full ml-1 inline-block transition-colors"
+            />
+          </div>
+        </Section>
+      {/if}
     </Row>
   </TopAppBar>
 
@@ -269,7 +286,7 @@
   <div
     class="footer pl-4 pr-4 pt-4 pb-4 bottom-0 w-screen flex flex-wrap flex-row justify-between items-center"
   >
-    <div class="textfield" style="flex: 2;">
+    <div class="textfield mr-2" style="flex: 2;">
       <Textfield variant="standard" bind:value={address} label="Address">
         <HelperText persistent slot="helper"
           >033f4bbfcd67bd0fc858499929a3255d063999ee23f4c5e12b8b1089e132b3e408@localhost:7272</HelperText
@@ -277,36 +294,30 @@
       </Textfield>
     </div>
 
-    <div class="textfield" style="flex: 1">
+    <div class="textfield mr-2" style="flex: 1">
       <Textfield variant="standard" bind:value={rune} label="Rune">
         <HelperText persistent slot="helper"
           >O2osJxV-6lGUgAf-0NllduniYbq1Zkn-45trtbx4qAE9MA==</HelperText
         >
       </Textfield>
     </div>
-    <div class="mt-auto" style="display: flex; flex-direction: column; flex: 1">
+    <div class="" style="display: flex; flex-direction: column; flex: 1; color: rgba(0, 0, 0, 0.6);">
+      <div>
+        <FormField style="display: flex; flex-direction: row; align-items: baseline;">
+          <Checkbox class="mr-2" bind:checked={useTls} touch />
+          <span style="height: 28px;" slot="label">Use TLS</span>
+        </FormField>
+      </div>
+
       <Button
         class="load-button"
         variant="raised"
+        style="margin-top: -10px;"
         on:click={() => executeConnect()}
         disabled={!address || !rune}
       >
         <Label class="font-bold">Draw</Label>
       </Button>
-      {#if $connectionStatus}
-        <div class="flex items-center justify-end">
-          <div class="text-sm" style="color: rgba(0, 0, 0, 0.6); font-size: 0.75rem;">
-            {$connectionStatus}
-          </div>
-          <div
-            class:bg-green-500={$connectionStatus === 'connected'}
-            class:bg-yellow-500={$connectionStatus === 'connecting' ||
-              $connectionStatus === 'waiting_reconnect'}
-            class:bg-red-500={$connectionStatus === 'disconnected'}
-            class="w-3 h-3 rounded-full ml-1 transition-colors"
-          />
-        </div>
-      {/if}
     </div>
   </div>
 </main>
