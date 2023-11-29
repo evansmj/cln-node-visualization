@@ -1,6 +1,8 @@
 # CLN Lightning Channel Visualizer
 This web app plots Lightning nodes and their channels onto a graph.  You can switch between ws:// and secure wss:// via the Use TLS checkbox.  You can view latest updates by clicking the draw button to redraw the graph with the latest data.
 
+![screenshot](./screenshot.png)
+
 ## Get started
 
 1. Install the dependencies
