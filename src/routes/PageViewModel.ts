@@ -15,9 +15,9 @@ export class PageViewModel {
     this.connectionStatus = nodeService.connectionStatus
   }
 
-  connect(address: string, rune: string) {
+  connect(address: string, rune: string, useTls: boolean) {
     console.log("PageViewModel.connect()")
-    this.nodeService.connect(address, rune)
+    this.nodeService.connect(address, rune, useTls)
     this.nodeService.getGraphData().then(d => {
       console.log("viewmodel getGraphData d = " + d.nodes.length)
       this.graphDataBehaviorSubject.next(d)

@@ -20,6 +20,8 @@
     "@playwright/test": "^1.28.1",
     "@smui/banner": "^7.0.0-beta.15",
     "@smui/button": "^7.0.0-beta.15",
+    "@smui/checkbox": "^7.0.0-beta.15",
+    "@smui/form-field": "^7.0.0-beta.15",
     "@smui/textfield": "^7.0.0-beta.15",
     "@smui/top-app-bar": "^7.0.0-beta.15",
     "@sveltejs/adapter-auto": "^2.0.0",
