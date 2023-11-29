@@ -83,7 +83,6 @@
 
   function updateGraph(data: GraphData) {
     //remove existing nodes and links
-    //try just removing the entire svg and g?  no it has to be only stuff that was added after onMount() was called
     g.selectAll('.node').remove()
     g.selectAll('.link').remove()
     g.selectAll('path').remove()
