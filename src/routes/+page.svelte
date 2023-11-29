@@ -34,8 +34,6 @@
     height = 400 - margin.top - margin.bottom
 
   onMount(async () => {
-    console.log('onMount() pageViewModel ' + pageViewModel)
-
     // append the svg object to the body of the page
     svg = d3.selectAll('div.content').append('svg').attr('width', '100%').attr('height', '100%')
 
@@ -84,6 +82,14 @@
   })
 
   function updateGraph(data: GraphData) {
+    //remove existing nodes and links
+    //try just removing the entire svg and g?  no it has to be only stuff that was added after onMount() was called
+    g.selectAll('.node').remove()
+    g.selectAll('.link').remove()
+    g.selectAll('path').remove()
+    svg.selectAll('defs').remove()
+
+    //now draw
     var defs = svg.append('svg:defs')
 
     data.links.forEach((link, index) => {
@@ -284,7 +290,7 @@
   </div-->
 
   <div
-    class="footer pl-4 pr-4 pt-4 pb-4 bottom-0 w-screen flex flex-wrap flex-row justify-between items-center"
+    class="footer pl-4 pr-4 pt-0 pb-4 bottom-0 w-screen flex flex-wrap flex-row justify-between items-center"
   >
     <div class="textfield mr-2" style="flex: 2;">
       <Textfield variant="standard" bind:value={address} label="Address">
@@ -301,7 +307,10 @@
         >
       </Textfield>
     </div>
-    <div class="" style="display: flex; flex-direction: column; flex: 1; color: rgba(0, 0, 0, 0.6);">
+    <div
+      class=""
+      style="display: flex; flex-direction: column; flex: 1; color: rgba(0, 0, 0, 0.6);"
+    >
       <div>
         <FormField style="display: flex; flex-direction: row; align-items: baseline;">
           <Checkbox class="mr-2" bind:checked={useTls} touch />
