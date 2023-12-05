@@ -15,9 +15,7 @@
     "test:unit": "vitest",
     "lint": "prettier --plugin-search-dir . --check . && eslint .",
     "format": "prettier --plugin-search-dir . --write .",
-    "prepare": "npm run smui-theme-light && npm run smui-theme-dark",
-    "smui-theme-light": "smui-theme compile static/smui.css -i src/theme",
-    "smui-theme-dark": "smui-theme compile static/smui-dark.css -i src/theme/dark"
+    "prepare": "smui-theme compile build/smui.css -i src/theme"
   },
   "devDependencies": {
     "@playwright/test": "^1.28.1",
