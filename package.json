@@ -7,6 +7,7 @@
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
+    "preinstall": "mkdir -p build",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
     "test": "playwright test",
