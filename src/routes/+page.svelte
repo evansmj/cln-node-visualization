@@ -10,6 +10,7 @@
   import Button from '@smui/button'
   import Checkbox from '@smui/checkbox'
   import FormField from '@smui/form-field'
+    import { listen } from 'svelte/internal'
 
   let address: string = ''
   let rune: string = ''
@@ -153,7 +154,18 @@
       .force('charge', d3.forceManyBody().strength(-400))
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force('collide', d3.forceCollide(200))
-      .on('tick', ticked)
+      .stop()
+      //.on('tick', ticked)
+
+      simulation.tick(300)
+
+      node.attr("cx", function(d) { return d.x })
+      node.attr("cy", function(d) { return d.y })
+      link.attr('d', pathD)
+      node.attr('transform', function(d) {
+        return 'translate(' + d.x + ',' + d.y + ')'
+      })
+      node.selectAll('text').call(wrap, 150)
 
     function ticked() {
       link.attr('d', pathD)
