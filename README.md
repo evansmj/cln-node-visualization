@@ -11,7 +11,7 @@ This web app plots Lightning nodes and their channels onto a graph.  You can swi
 npm i
 ```
 
-3. Start the app in dev mode
+2. Start the app in dev mode
 
 ```bash
 npm run dev
