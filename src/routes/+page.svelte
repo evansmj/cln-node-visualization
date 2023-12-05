@@ -258,81 +258,32 @@
 
   <div class="content flex-grow overflow-hidden" />
 
-  <!--div class="w-full mt-4 text-sm p-4 border-2 rounded border-purple-300">
-    <label class="text-neutral-600 font-medium mb-1 block" for="address">Address</label>
-    <textarea
-      id="address"
-      class="border w-full p-2 rounded"
-      rows="3"
-      bind:value={address}
-      placeholder="033f4bbfcd67bd0fc858499929a3255d063999ee23f4c5e12b8b1089e132b3e408@localhost:7272"
-    />
-
-    <label class="text-neutral-600 font-medium mb-1 block" for="rune">Rune</label>
-    <textarea
-      id="rune"
-      class="border w-full p-2 rounded"
-      rows="2"
-      bind:value={rune}
-      placeholder="O2osJxV-6lGUgAf-0NllduniYbq1Zkn-45trtbx4qAE9MA=="
-    />
-
-    <div class="flex items-center justify-between w-full">
-      <button
-        on:click={executeConnect}
-        disabled={!address}
-        class="mt-2 border border-purple-500 rounded py-1 px-4 disabled:opacity-20 hover:shadow-md active:shadow-none"
-        >Connect</button
-      >
-
-      {#if $connectionStatus}
-        <div class="flex items-center">
-          <div class="text-sm">{$connectionStatus}</div>
-          <div
-            class:bg-green-500={$connectionStatus === 'connected'}
-            class:bg-yellow-500={$connectionStatus === 'connecting' ||
-              $connectionStatus === 'waiting_reconnect'}
-            class:bg-red-500={$connectionStatus === 'disconnected'}
-            class="w-3 h-3 rounded-full ml-1 transition-colors"
-          />
-        </div>
-      {/if}
-    </div>
-  </div-->
-
-  <div
-    class="footer pl-4 pr-4 pt-0 pb-4 bottom-0 w-screen flex flex-wrap flex-row justify-between items-center"
-  >
+  <div class="footer pl-4 pr-4 pt-0 pb-4 bottom-0 w-screen flex flex-wrap flex-row justify-between items-center">
     <div class="textfield mr-2" style="flex: 2;">
       <Textfield variant="standard" bind:value={address} label="Address">
         <HelperText persistent slot="helper"
-          >033f4bbfcd67bd0fc858499929a3255d063999ee23f4c5e12b8b1089e132b3e408@localhost:7272</HelperText
-        >
+          >033f4bbfcd67bd0fc858499929a3255d063999ee23f4c5e12b8b1089e132b3e408@localhost:7272</HelperText>
       </Textfield>
     </div>
 
     <div class="textfield mr-2" style="flex: 1">
       <Textfield variant="standard" bind:value={rune} label="Rune">
-        <HelperText persistent slot="helper"
-          >O2osJxV-6lGUgAf-0NllduniYbq1Zkn-45trtbx4qAE9MA==</HelperText
-        >
+        <HelperText persistent slot="helper">O2osJxV-6lGUgAf-0NllduniYbq1Zkn-45trtbx4qAE9MA==</HelperText>
       </Textfield>
     </div>
     <div
-      class=""
       style="display: flex; flex-direction: column; flex: 1; color: rgba(0, 0, 0, 0.6);"
     >
       <div>
-        <FormField style="display: flex; flex-direction: row; align-items: baseline;">
+        <FormField class="checkboxFormField">
           <Checkbox class="mr-2" bind:checked={useTls} touch />
-          <span style="height: 28px;" slot="label">Use TLS</span>
+          <span class="usetlstext" slot="label">Use TLS</span>
         </FormField>
       </div>
 
       <Button
         class="load-button"
         variant="raised"
-        style="margin-top: -10px;"
         on:click={() => executeConnect()}
         disabled={!address || !rune}
       >
@@ -341,14 +292,6 @@
     </div>
   </div>
 </main>
-
-<!--div class="w-full flex justify-center mt-auto">
-  <div class="p-4 border-2 rounded border-green-300">
-    <div id="d3-container" style="width: 800px; height:1800px pb-40">
-      <div class="chart" />
-    </div>
-  </div>
-</div-->
 
 <style>
   main {
@@ -386,4 +329,10 @@
     color: #ffffff;
     --mdc-theme-on-primary: #ffffff;
   }
+
+  :global(.checkboxFormField) {
+    display: flex;
+    align-items: baseline;  
+  }
+
 </style>
