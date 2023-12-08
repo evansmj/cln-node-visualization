@@ -17,7 +17,7 @@ npm i
 npm run dev
 ```
 
-4. Open up [http://localhost:5173](http://localhost:5371) in your browser
+4. Open up [http://localhost:5173](http://localhost:5173) in your browser
 
 ## Credits
 This is based on boilerplate from https://github.com/aaronbarnardsound/create-coreln-app.
