@@ -10,7 +10,7 @@
   import Button from '@smui/button'
   import Checkbox from '@smui/checkbox'
   import FormField from '@smui/form-field'
-    import { listen } from 'svelte/internal'
+  import { listen } from 'svelte/internal'
 
   let address: string = ''
   let rune: string = ''
@@ -25,6 +25,11 @@
   let markerWidth = 6
   let markerHeight = 6
   let color = d3.scaleOrdinal(d3.schemeCategory10)
+
+  let isFooterVisible: boolean = true
+  let timeoutId: any // Variable to store the timeout
+
+  let isDrawClicked: boolean = false
 
   $: if (graphData !== undefined) {
     updateGraph(graphData)
@@ -155,17 +160,21 @@
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force('collide', d3.forceCollide(200))
       .stop()
-      //.on('tick', ticked)
+    //.on('tick', ticked)
 
-      simulation.tick(300)
+    simulation.tick(300)
 
-      node.attr("cx", function(d) { return d.x })
-      node.attr("cy", function(d) { return d.y })
-      link.attr('d', pathD)
-      node.attr('transform', function(d) {
-        return 'translate(' + d.x + ',' + d.y + ')'
-      })
-      node.selectAll('text').call(wrap, 150)
+    node.attr('cx', function (d) {
+      return d.x
+    })
+    node.attr('cy', function (d) {
+      return d.y
+    })
+    link.attr('d', pathD)
+    node.attr('transform', function (d) {
+      return 'translate(' + d.x + ',' + d.y + ')'
+    })
+    node.selectAll('text').call(wrap, 150)
 
     function ticked() {
       link.attr('d', pathD)
@@ -230,6 +239,20 @@
   function executeConnect() {
     pageViewModel.connect(address, rune, useTls)
   }
+
+  function handleMouseEnter() {
+    clearTimeout(timeoutId) // Clear any existing timeout
+    isFooterVisible = true // make sure its visible on mouse enter
+  }
+
+  function handleMouseLeave() {
+    if (isDrawClicked) {
+      timeoutId = setTimeout(() => {
+        // Code to make the footer disappear after 5 seconds
+        isFooterVisible = false // Assuming a variable to control visibility
+      }, 5000)
+    }
+  }
 </script>
 
 <main class="flex flex-col h-screen">
@@ -258,38 +281,48 @@
 
   <div class="content flex-grow overflow-hidden" />
 
-  <div class="footer pl-4 pr-4 pt-0 pb-4 bottom-0 w-screen flex flex-wrap flex-row justify-between items-center">
-    <div class="textfield mr-2" style="flex: 2;">
-      <Textfield variant="standard" bind:value={address} label="Address">
-        <HelperText persistent slot="helper"
-          >033f4bbfcd67bd0fc858499929a3255d063999ee23f4c5e12b8b1089e132b3e408@localhost:7272</HelperText>
-      </Textfield>
-    </div>
-
-    <div class="textfield mr-2" style="flex: 1">
-      <Textfield variant="standard" bind:value={rune} label="Rune">
-        <HelperText persistent slot="helper">O2osJxV-6lGUgAf-0NllduniYbq1Zkn-45trtbx4qAE9MA==</HelperText>
-      </Textfield>
-    </div>
-    <div
-      style="display: flex; flex-direction: column; flex: 1; color: rgba(0, 0, 0, 0.6);"
-    >
-      <div>
-        <FormField class="checkboxFormField">
-          <Checkbox class="mr-2" bind:checked={useTls} touch />
-          <span class="usetlstext" slot="label">Use TLS</span>
-        </FormField>
+  <div
+    class="footer pl-4 pr-4 pt-0 pb-4 bottom-0 w-screen flex flex-wrap flex-row justify-between items-center"
+    on:mouseenter={handleMouseEnter}
+    on:mouseleave={handleMouseLeave}
+  >
+    {#if isFooterVisible}
+      <div class="textfield mr-2" style="flex: 2;">
+        <Textfield variant="standard" bind:value={address} label="Address">
+          <HelperText persistent slot="helper"
+            >033f4bbfcd67bd0fc858499929a3255d063999ee23f4c5e12b8b1089e132b3e408@localhost:7272</HelperText
+          >
+        </Textfield>
       </div>
 
-      <Button
-        class="load-button"
-        variant="raised"
-        on:click={() => executeConnect()}
-        disabled={!address || !rune}
-      >
-        <Label class="font-bold">Draw</Label>
-      </Button>
-    </div>
+      <div class="textfield mr-2" style="flex: 1">
+        <Textfield variant="standard" bind:value={rune} label="Rune">
+          <HelperText persistent slot="helper"
+            >O2osJxV-6lGUgAf-0NllduniYbq1Zkn-45trtbx4qAE9MA==</HelperText
+          >
+        </Textfield>
+      </div>
+      <div style="display: flex; flex-direction: column; flex: 1; color: rgba(0, 0, 0, 0.6);">
+        <div>
+          <FormField class="checkboxFormField">
+            <Checkbox class="mr-2" bind:checked={useTls} touch />
+            <span class="usetlstext" slot="label">Use TLS</span>
+          </FormField>
+        </div>
+
+        <Button
+          class="load-button"
+          variant="raised"
+          on:click={() => {
+            isDrawClicked = true
+            executeConnect()
+          }}
+          disabled={!address || !rune}
+        >
+          <Label class="font-bold">Draw</Label>
+        </Button>
+      </div>
+    {/if}
   </div>
 </main>
 
@@ -332,7 +365,6 @@
 
   :global(.checkboxFormField) {
     display: flex;
-    align-items: baseline;  
+    align-items: baseline;
   }
-
 </style>
