@@ -11,7 +11,8 @@
   import Checkbox from '@smui/checkbox'
   import FormField from '@smui/form-field'
   import { listen } from 'svelte/internal'
-  import { fade } from 'svelte/transition'
+  import { slide } from 'svelte/transition'
+	import { quintOut } from 'svelte/easing'
 
   let address: string = ''
   let rune: string = ''
@@ -289,7 +290,7 @@
   >
     {#if isFooterVisible}
       <div class="textfield mr-2" style="flex: 2;"
-      
+      transition:slide={{ duration: 500, easing: quintOut, axis: 'y' }}
       >
         <Textfield variant="standard" bind:value={address} label="Address">
           <HelperText persistent slot="helper"
@@ -299,7 +300,7 @@
       </div>
 
       <div class="textfield mr-2" style="flex: 1"
-      transition:fade={{ duration: 500 }}
+      transition:slide={{ duration: 300, easing: quintOut, axis: 'y' }}
       >
         <Textfield variant="standard" bind:value={rune} label="Rune">
           <HelperText persistent slot="helper"
@@ -308,10 +309,10 @@
         </Textfield>
       </div>
       <div style="display: flex; flex-direction: column; flex: 1; color: rgba(0, 0, 0, 0.6);"
-      transition:fade={{ duration: 500 }}
+      transition:slide={{ duration: 300, easing: quintOut, axis: 'y' }}
       >
         <div
-        transition:fade={{ duration: 500 }}
+        transition:slide={{ duration: 300, easing: quintOut, axis: 'y' }}
         >
           <FormField class="checkboxFormField">
             <Checkbox class="mr-2" bind:checked={useTls} touch />
