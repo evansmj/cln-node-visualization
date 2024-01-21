@@ -11,6 +11,7 @@
   import Checkbox from '@smui/checkbox'
   import FormField from '@smui/form-field'
   import { listen } from 'svelte/internal'
+  import { fade } from 'svelte/transition'
 
   let address: string = ''
   let rune: string = ''
@@ -287,7 +288,9 @@
     on:mouseleave={handleMouseLeave}
   >
     {#if isFooterVisible}
-      <div class="textfield mr-2" style="flex: 2;">
+      <div class="textfield mr-2" style="flex: 2;"
+      
+      >
         <Textfield variant="standard" bind:value={address} label="Address">
           <HelperText persistent slot="helper"
             >033f4bbfcd67bd0fc858499929a3255d063999ee23f4c5e12b8b1089e132b3e408@localhost:7272</HelperText
@@ -295,15 +298,21 @@
         </Textfield>
       </div>
 
-      <div class="textfield mr-2" style="flex: 1">
+      <div class="textfield mr-2" style="flex: 1"
+      transition:fade={{ duration: 500 }}
+      >
         <Textfield variant="standard" bind:value={rune} label="Rune">
           <HelperText persistent slot="helper"
             >O2osJxV-6lGUgAf-0NllduniYbq1Zkn-45trtbx4qAE9MA==</HelperText
           >
         </Textfield>
       </div>
-      <div style="display: flex; flex-direction: column; flex: 1; color: rgba(0, 0, 0, 0.6);">
-        <div>
+      <div style="display: flex; flex-direction: column; flex: 1; color: rgba(0, 0, 0, 0.6);"
+      transition:fade={{ duration: 500 }}
+      >
+        <div
+        transition:fade={{ duration: 500 }}
+        >
           <FormField class="checkboxFormField">
             <Checkbox class="mr-2" bind:checked={useTls} touch />
             <span class="usetlstext" slot="label">Use TLS</span>
