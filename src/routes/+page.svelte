@@ -12,7 +12,7 @@
   import FormField from '@smui/form-field'
   import { listen } from 'svelte/internal'
   import { slide } from 'svelte/transition'
-	import { quintOut } from 'svelte/easing'
+  import { quintOut } from 'svelte/easing'
 
   let address: string = ''
   let rune: string = ''
@@ -243,15 +243,14 @@
   }
 
   function handleMouseEnter() {
-    clearTimeout(timeoutId) // Clear any existing timeout
-    isFooterVisible = true // make sure its visible on mouse enter
+    clearTimeout(timeoutId)
+    isFooterVisible = true
   }
 
   function handleMouseLeave() {
     if (isDrawClicked) {
       timeoutId = setTimeout(() => {
-        // Code to make the footer disappear after 5 seconds
-        isFooterVisible = false // Assuming a variable to control visibility
+        isFooterVisible = false
       }, 5000)
     }
   }
