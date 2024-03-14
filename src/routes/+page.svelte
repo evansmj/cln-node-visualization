@@ -266,7 +266,7 @@
         <Section>
           <div class="absolute right-0 top-17 text-right p-2 z-50">
             <a href="https://github.com/evansmj/cln-node-visualization" target="_blank">
-              <img src="public/assets/github-mark.svg" alt="Github logo" class="inline-block mr-2" style="height: 2rem;"/>
+              <img src="/github-mark.svg" alt="Github logo" class="inline-block mr-2" style="height: 2rem;"/>
             </a>            
           <div style="color: #ededed" class="connection-status-text text-sm inline-block">{$connectionStatus}</div>
             <div
