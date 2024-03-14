@@ -272,7 +272,7 @@
               <img
                 src="/github-mark.svg"
                 alt="Github logo"
-                class="inline-block mr-2"
+                class="inline-block mr-1"
                 style="height: 1.5rem;"
               />
             </a>
@@ -378,9 +378,9 @@
     }
   }
 
-  @media screen and (max-width: 28rem) {
+  @media screen and (max-width: 48rem) {
     .connection-status-text {
-      visibility: hidden;
+      display: none;
     }
   }
 
