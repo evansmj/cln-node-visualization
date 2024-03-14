@@ -259,13 +259,26 @@
   <TopAppBar class="z-50 customTopBar sticky top-0" variant="static">
     <Row>
       <Section>
-        <Title>Lightning Channel Visualizer</Title>
+        <Title>
+          <span class="desktop-title">Lightning Channel Visualizer</span>
+          <span class="mobile-title">LitChanViz</span>
+        </Title>
       </Section>
 
       {#if $connectionStatus}
         <Section>
           <div class="absolute right-0 top-17 text-right p-2 z-50">
-            <div style="color: #ededed" class="connection-status-text text-sm inline-block">{$connectionStatus}</div>
+            <a href="https://github.com/evansmj/cln-node-visualization" target="_blank">
+              <img
+                src="/github-mark.svg"
+                alt="Github logo"
+                class="inline-block mr-1"
+                style="height: 1.5rem;"
+              />
+            </a>
+            <div style="color: #ededed" class="connection-status-text text-sm inline-block">
+              {$connectionStatus}
+            </div>
             <div
               class:bg-green-500={$connectionStatus === 'connected'}
               class:bg-yellow-500={$connectionStatus === 'connecting' ||
@@ -359,15 +372,15 @@
   @media screen and (max-width: 48rem) {
     :global(.mdc-text-field) {
       width: 100%;
-    } 
+    }
     .footer {
       flex-direction: column;
     }
   }
 
-  @media screen and (max-width: 28rem) {
+  @media screen and (max-width: 48rem) {
     .connection-status-text {
-      visibility: hidden;
+      display: none;
     }
   }
 
@@ -375,6 +388,19 @@
     white-space: normal;
     overflow-wrap: break-word;
     word-break: break-word;
+  }
+
+  .mobile-title {
+    display: none;
+  }
+
+  @media (max-width: 48rem) {
+    .desktop-title {
+      display: none;
+    }
+    .mobile-title {
+      display: inline;
+    }
   }
 
   .footer {
