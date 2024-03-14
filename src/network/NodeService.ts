@@ -2,8 +2,6 @@ import Lnmessage from 'lnmessage';
 import { parseNodeAddress } from '../routes/utils';
 import { writable } from 'svelte/store';
 import type { Writable } from 'svelte/store';
-import { subscribe } from 'svelte/internal';
-import { Subject } from 'rxjs'
 import type { Subscription } from 'rxjs'
 import type { Node, Link, GraphData } from './GraphData'
 

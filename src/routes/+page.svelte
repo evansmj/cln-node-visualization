@@ -2,15 +2,14 @@
   import { onMount } from 'svelte'
   import * as d3 from 'd3'
   import { pageViewModel } from './PageViewModel'
-  import type { GraphData, Link, Node } from '../network/GraphData'
-  import Banner, { Label, CloseReason } from '@smui/banner'
+  import type { GraphData, Node } from '../network/GraphData'
+  import { Label } from '@smui/banner'
   import TopAppBar, { Row, Section, Title } from '@smui/top-app-bar'
-  import Textfield, { Input } from '@smui/textfield'
+  import Textfield from '@smui/textfield'
   import HelperText from '@smui/textfield/helper-text'
   import Button from '@smui/button'
   import Checkbox from '@smui/checkbox'
   import FormField from '@smui/form-field'
-  import { listen } from 'svelte/internal'
   import { slide } from 'svelte/transition'
   import { quintOut } from 'svelte/easing'
 
@@ -29,7 +28,7 @@
   let color = d3.scaleOrdinal(d3.schemeCategory10)
 
   let isFooterVisible: boolean = true
-  let timeoutId: any // Variable to store the timeout
+  let timeoutId: any // Timeout object
 
   let isDrawClicked: boolean = false
 
@@ -284,6 +283,7 @@
 
   <div
     class="footer pl-4 pr-4 pt-0 pb-4 bottom-0 w-screen flex flex-wrap flex-row justify-between items-center"
+    role="form"
     on:mouseenter={handleMouseEnter}
     on:mouseleave={handleMouseLeave}
   >
