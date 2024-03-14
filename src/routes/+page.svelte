@@ -265,7 +265,7 @@
       {#if $connectionStatus}
         <Section>
           <div class="absolute right-0 top-17 text-right p-2 z-50">
-            <div style="color: #ededed" class="text-sm inline-block">{$connectionStatus}</div>
+            <div style="color: #ededed" class="connection-status-text text-sm inline-block">{$connectionStatus}</div>
             <div
               class:bg-green-500={$connectionStatus === 'connected'}
               class:bg-yellow-500={$connectionStatus === 'connecting' ||
@@ -282,14 +282,16 @@
   <div class="content flex-grow overflow-hidden" />
 
   <div
-    class="footer pl-4 pr-4 pt-0 pb-4 bottom-0 w-screen flex flex-wrap flex-row justify-between items-center"
+    class="footer pl-4 pr-4 pt-0 pb-4 bottom-0 w-screen flex flex-wrap flex-row justify-between"
     role="form"
     on:mouseenter={handleMouseEnter}
     on:mouseleave={handleMouseLeave}
   >
     {#if isFooterVisible}
-      <div class="textfield mr-2" style="flex: 2;"
-      transition:slide={{ duration: 500, easing: quintOut, axis: 'y' }}
+      <div
+        class="textfield mr-2"
+        style="flex: 1;"
+        transition:slide={{ duration: 500, easing: quintOut, axis: 'y' }}
       >
         <Textfield variant="standard" bind:value={address} label="Address">
           <HelperText persistent slot="helper"
@@ -298,8 +300,10 @@
         </Textfield>
       </div>
 
-      <div class="textfield mr-2" style="flex: 1"
-      transition:slide={{ duration: 300, easing: quintOut, axis: 'y' }}
+      <div
+        class="textfield mr-2"
+        style="flex: 1;"
+        transition:slide={{ duration: 300, easing: quintOut, axis: 'y' }}
       >
         <Textfield variant="standard" bind:value={rune} label="Rune">
           <HelperText persistent slot="helper"
@@ -307,12 +311,12 @@
           >
         </Textfield>
       </div>
-      <div style="display: flex; flex-direction: column; flex: 1; color: rgba(0, 0, 0, 0.6);"
-      transition:slide={{ duration: 300, easing: quintOut, axis: 'y' }}
-      >
-        <div
+
+      <div
+        style="display: flex; flex-direction: column; flex: 1; color: rgba(0, 0, 0, 0.6);"
         transition:slide={{ duration: 300, easing: quintOut, axis: 'y' }}
-        >
+      >
+        <div transition:slide={{ duration: 300, easing: quintOut, axis: 'y' }}>
           <FormField class="checkboxFormField">
             <Checkbox class="mr-2" bind:checked={useTls} touch />
             <span class="usetlstext" slot="label">Use TLS</span>
@@ -352,14 +356,25 @@
     width: 48rem;
   }
 
-  .textfield {
-    width: 100%;
+  @media screen and (max-width: 48rem) {
+    :global(.mdc-text-field) {
+      width: 100%;
+    } 
+    .footer {
+      flex-direction: column;
+    }
   }
 
-  @media (min-width: 1024px) {
-    .textfield {
-      width: 48rem;
+  @media screen and (max-width: 28rem) {
+    .connection-status-text {
+      visibility: hidden;
     }
+  }
+
+  :global(.mdc-text-field-helper-line) {
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
 
   .footer {
