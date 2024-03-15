@@ -10,6 +10,7 @@
   import Button from '@smui/button'
   import Checkbox from '@smui/checkbox'
   import FormField from '@smui/form-field'
+  import Dialog, { Title as DialogTitle, Content, Actions } from '@smui/dialog'
   import { slide } from 'svelte/transition'
   import { quintOut } from 'svelte/easing'
 
@@ -26,6 +27,8 @@
   let markerWidth = 6
   let markerHeight = 6
   let color = d3.scaleOrdinal(d3.schemeCategory10)
+
+  let isDialogOpen = false
 
   let isFooterVisible: boolean = true
   let timeoutId: any // Timeout object
@@ -256,6 +259,33 @@
 </script>
 
 <main class="flex flex-col h-screen">
+  <Dialog
+    bind:open={isDialogOpen}
+    aria-labelledby="large-scroll-title"
+    aria-describedby="large-scroll-content"
+    surface$style="width: 450px; max-width: calc(100vw - 32px);"
+  >
+    <DialogTitle id="large-scroll-title">Sprinkle some Sats if you like</DialogTitle>
+    <Content id="large-scroll-content">
+      <div>
+        <img
+          src="/donate-qr.png"
+          alt="Donate qr code"
+          class="inline-block mr-1 mb-5 mt-5"
+          style="height: 10rem;"
+        />
+
+        <br />
+        bc1qgp427rpd4p99x3l70q7mqf6q8llevggpk2uqnm
+      </div>
+    </Content>
+    <Actions>
+      <Button action="accept">
+        <Label>Close</Label>
+      </Button>
+    </Actions>
+  </Dialog>
+
   <TopAppBar class="z-50 customTopBar sticky top-0" variant="static">
     <Row>
       <Section>
@@ -268,6 +298,14 @@
       {#if $connectionStatus}
         <Section>
           <div class="absolute right-0 top-17 text-right p-2 z-50">
+            <Button on:click={() => isDialogOpen = !isDialogOpen}>
+              <img
+                src="/donate.svg"
+                alt="Donate button"
+                class="inline-block mr-1"
+                style="height: 1.5rem;"
+              />
+            </Button>
             <a href="https://github.com/evansmj/cln-node-visualization" target="_blank">
               <img
                 src="/github-mark.svg"
