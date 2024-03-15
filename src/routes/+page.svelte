@@ -276,7 +276,7 @@
         />
 
         <br />
-        bc1qgp427rpd4p99x3l70q7mqf6q8llevggpk2uqnm
+        <p class="donate-text" style="color: #F7931A;">bc1qgp427rpd4p99x3l70q7mqf6q8llevggpk2uqnm</p>
       </div>
     </Content>
     <Actions>
@@ -407,6 +407,10 @@
     width: 48rem;
   }
 
+  .mobile-title {
+    display: none;
+  }
+
   @media screen and (max-width: 48rem) {
     :global(.mdc-text-field) {
       width: 100%;
@@ -414,11 +418,17 @@
     .footer {
       flex-direction: column;
     }
-  }
-
-  @media screen and (max-width: 48rem) {
+    .desktop-title {
+      display: none;
+    }
+    .mobile-title {
+      display: inline;
+    }
     .connection-status-text {
       display: none;
+    }
+    .donate-text {
+      font-size: 0.8em;
     }
   }
 
@@ -426,19 +436,6 @@
     white-space: normal;
     overflow-wrap: break-word;
     word-break: break-word;
-  }
-
-  .mobile-title {
-    display: none;
-  }
-
-  @media (max-width: 48rem) {
-    .desktop-title {
-      display: none;
-    }
-    .mobile-title {
-      display: inline;
-    }
   }
 
   .footer {
